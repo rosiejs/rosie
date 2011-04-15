@@ -1,6 +1,6 @@
 describe('JSHint', function () {
   var options = {curly: true, indent: 2},
-      files = /^\/src|.*spec\.js$/;
+      files = /^\/src/;
 
   function get(path) {
     path = path + "?" + new Date().getTime();
@@ -20,24 +20,23 @@ describe('JSHint', function () {
     return xhr.responseText;
   }
 
-  _.each(document.getElementsByTagName('script'), function (element) {
-    var script = element.getAttribute('src');
-    if (!files.test(script)) {
-      return;
+  it("should not have JSHint errors", function () {
+    var scripts = document.getElementsByTagName('script');
+    for(var i = 0; i < scripts.length; i++) {
+      var script = scripts[i].getAttribute('src');
+      if (files.test(script)) {
+          var source = get(script);
+          var result = JSHINT(source, options);
+          for(var e in JSHINT.errors) {
+            var error = JSHINT.errors[e];
+            this.addMatcherResult(new jasmine.ExpectationResult({
+              passed: false,
+              message: script + ":" + error.line + ' - ' + error.reason + ' - ' + error.evidence
+            }));
+          }
+          expect(true).toBe(true); // force spec to show up if there are no errors
+      };
     }
-
-    it(script, function () {
-      var self = this;
-      var source = get(script);
-      var result = JSHINT(source, options);
-      _.each(JSHINT.errors, function (error) {
-        self.addMatcherResult(new jasmine.ExpectationResult({
-          passed: false,
-          message: "line " + error.line + ' - ' + error.reason + ' - ' + error.evidence
-        }));
-      });
-      expect(true).toBe(true); // force spec to show up if there are no errors
-    });
-
   });
+
 });
