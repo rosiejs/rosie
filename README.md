@@ -45,3 +45,6 @@ For a factory with a constructor, if you want just the attributes:
 
     Factory.attributes('game') // return just the attributes
 
+## Credits
+
+Thanks to [Daniel Morrison](http://twitter.com/danielmorrison/status/58883772040486912) for the name and [Jon Hoyt](http://twitter.com/jonmagic) for inspiration and brainstorming the idea.
