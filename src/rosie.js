@@ -6,7 +6,7 @@ var Factory = function(constructor) {
 
 Factory.prototype = {
   attr: function(attr, value) {
-    callback = typeof value == 'function' ? value : function() { return value; };
+    var callback = typeof value == 'function' ? value : function() { return value; };
     this.attrs[attr] = callback;
     return this;
   },
