@@ -52,3 +52,7 @@ Factory.build = function(name, attrs) {
 Factory.attributes = function(name, attrs) {
   return this.factories[name].attributes(attrs);
 };
+
+if (typeof exports != "undefined") {
+  exports.Factory = Factory;
+}
