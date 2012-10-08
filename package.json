@@ -1,0 +1,11 @@
+{   "name": "rosie"
+  , "version": "0.1.0"
+  , "description": "factory for building JavaScript objects, mostly useful for setting up test data. Inspired by factory_girl"
+  , "keywords": ["factory", "rosie", "test"]
+  , "author": "Brandon Keepers <brandon@opensoul.org>"
+  , "contributors": []
+  , "dependencies"  : {}
+  , "engines": { "node": "*" }
+  , "repository": { "type": "git", "url": "git://github.com/bkeepers/rosie.git" }
+  , "main": "src/rosie.js"
+}
