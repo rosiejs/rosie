@@ -34,6 +34,16 @@ Factory.prototype = {
   build: function(attrs) {
     var result = this.attributes(attrs);
     return this.construct ? new this.construct(result) : result;
+  },
+
+  inherit: function(name) {
+    var factory = Factory.factories[name];
+    for(var attr in factory.attrs) {
+      if(factory.attrs.hasOwnProperty(attr)) {
+        this.attrs[attr] = factory.attrs[attr];
+      }
+    }
+    return this;
   }
 };
 
