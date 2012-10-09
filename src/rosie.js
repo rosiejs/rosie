@@ -40,7 +40,7 @@ Factory.prototype = {
     var factory = Factory.factories[name];
     for(var attr in factory.attrs) {
       if(factory.attrs.hasOwnProperty(attr)) {
-        this.attrs[attr] =  factory.attrs[attr];
+        this.attrs[attr] = factory.attrs[attr];
       }
     }
     return this;
