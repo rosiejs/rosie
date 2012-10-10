@@ -1,5 +1,5 @@
 describe('JSHint', function () {
-  var options = {curly: true, indent: 2},
+  var options = {curly: true, indent: 2, white: false},
       files = /^\/src/;
 
   function get(path) {
