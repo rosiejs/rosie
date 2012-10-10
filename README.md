@@ -24,6 +24,8 @@ Define your factory, giving it a name and optionally a constructor function:
       .sequence('id')
       .sequence('name', function(i) { return 'player' + i; });
 
+    Factory.define('disabled-player').extend('player').attr('state', 'disabled')
+
 Now you can build an object, passing in attributes that you want to override:
 
     var game = Factory.build('game', {is_over:true});
