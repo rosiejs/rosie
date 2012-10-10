@@ -40,13 +40,13 @@ describe('Factory', function() {
     });
   });
 
-  describe('inherit', function() {
+  describe('extend', function() {
     beforeEach(function() {
       Factory.define('thing').attr('name', 'Thing 1');
-      Factory.define('anotherThing').inherit('thing').attr('title', 'Title 1');
+      Factory.define('anotherThing').extend('thing').attr('title', 'Title 1');
     });
 
-    it('should inherit attributes', function() {
+    it('should extend attributes', function() {
       expect(Factory.build('anotherThing')).toEqual({name:'Thing 1', title:'Title 1'});
     });
   });

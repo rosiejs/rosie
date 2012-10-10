@@ -36,7 +36,7 @@ Factory.prototype = {
     return this.construct ? new this.construct(result) : result;
   },
 
-  inherit: function(name) {
+  extend: function(name) {
     var factory = Factory.factories[name];
     for(var attr in factory.attrs) {
       if(factory.attrs.hasOwnProperty(attr)) {
