@@ -1,5 +1,5 @@
 {   "name": "rosie"
-  , "version": "0.1.0"
+  , "version": "0.1.1"
   , "description": "factory for building JavaScript objects, mostly useful for setting up test data. Inspired by factory_girl"
   , "keywords": ["factory", "rosie", "test"]
   , "author": "Brandon Keepers <brandon@opensoul.org>"
