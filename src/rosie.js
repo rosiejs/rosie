@@ -2,6 +2,7 @@ var Factory = function(constructor) {
   this.construct = constructor;
   this.attrs = {};
   this.sequences = {};
+  this.traits = {};
 };
 
 Factory.prototype = {
@@ -25,13 +26,29 @@ Factory.prototype = {
     attrs = attrs || {};
     for(var attr in this.attrs) {
       if(!attrs.hasOwnProperty(attr)) {
-        attrs[attr] =  this.attrs[attr]();
+        attrs[attr] = this.attrs[attr]();
       }
     }
     return attrs;
   },
 
+  trait: function(name, callback) {
+    this.traits[name] = callback;
+    return this;
+  },
+
   build: function(attrs) {
+    for(var attr in attrs) {
+      if(this.traits[attr]) {
+        value = attrs[attr];
+        if(value === true) {
+          this.traits[attr].call(this);
+        } else {
+          this.traits[attr].call(this, value);
+        }
+        delete attrs[attr];
+      }
+    }
     var result = this.attributes(attrs);
     return this.construct ? new this.construct(result) : result;
   },
