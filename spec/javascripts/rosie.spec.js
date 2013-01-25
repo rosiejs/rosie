@@ -133,5 +133,41 @@ describe('Factory', function() {
         expect(factory.attributes({baz:3})).toEqual({foo:1, bar:2, baz:3});
       });
     });
+
+    describe('trait', function() {
+      beforeEach(function() {
+        Factory.define('person')
+          .trait('adult', function() {
+            this.attr('name', 'Terry Doe');
+            this.attr('age', 36);
+          })
+          .trait('child', function(options) {
+            this.attr('name', 'Robin Doe');
+            this.attr('age', options['age']);
+            this.attr('guardian', 'Terry Doe');
+          });
+      });
+
+      it('invokes the function during the build for traits set to true', function(){
+        person = Factory.build('person', {adult: true});
+
+        expect(person.name).toEqual('Terry Doe');
+        expect(person.age).toEqual(36);
+      });
+
+      it('accepts an Array of arguments for the invoked function', function(){
+        person = Factory.build('person', {child: {age: 7}});
+
+        expect(person.name).toEqual('Robin Doe');
+        expect(person.age).toEqual(7);
+        expect(person.guardian).toEqual('Terry Doe');
+      });
+
+      it('does not pollute the object with traits', function() {
+        person = Factory.build('person', {adult: true});
+
+        expect(person.adult).not.toBeDefined();
+      });
+    });
   });
 });
