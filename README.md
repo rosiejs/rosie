@@ -39,13 +39,19 @@ Which returns an object that looks roughly like:
       random_seed:  0.8999513240996748,
       players: [
                     {id: 1, name:'Player 1'},
-                    {id: 1, name:'Player 2'}
+                    {id: 2, name:'Player 2'}
       ]
     }
 
 For a factory with a constructor, if you want just the attributes:
 
     Factory.attributes('game') // return just the attributes
+    
+You can also define a callback function to be run after building an object:
+
+    Factory.define('coach').after(function(coach, options) { if (options.buildPlayer) { Factory.build('player', {coach_id: coach.id}; } })
+    
+    Factory.build('coach', {}, {buildPlayer: true});
 
 ## Credits
 
