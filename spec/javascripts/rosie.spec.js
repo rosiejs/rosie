@@ -12,7 +12,9 @@ describe('Factory', function() {
       };
 
       beforeEach(function() {
-        Factory.define('thing', Thing).attr('name', 'Thing 1');
+        Factory.define('thing', Thing).attr('name', 'Thing 1').after(function(obj) {
+          obj.afterCalled = true;
+        });
       });
 
       it('should return a new instance of that constructor', function() {
@@ -21,7 +23,11 @@ describe('Factory', function() {
       });
 
       it('should set attributes', function() {
-        expect(Factory.build('thing')).toEqual({name: 'Thing 1'});
+        expect(Factory.build('thing')).toEqual({name: 'Thing 1', afterCalled: true});
+      });
+
+      it('should run callbacks', function() {
+          expect(Factory.build('thing').afterCalled).toBe(true);
       });
     });
 
@@ -42,12 +48,18 @@ describe('Factory', function() {
 
   describe('extend', function() {
     beforeEach(function() {
-      Factory.define('thing').attr('name', 'Thing 1');
+      Factory.define('thing').attr('name', 'Thing 1').after(function(obj) {
+        obj.afterCalled = true;
+      });
       Factory.define('anotherThing').extend('thing').attr('title', 'Title 1');
     });
 
     it('should extend attributes', function() {
-      expect(Factory.build('anotherThing')).toEqual({name:'Thing 1', title:'Title 1'});
+      expect(Factory.build('anotherThing')).toEqual({name:'Thing 1', title:'Title 1', afterCalled: true});
+    });
+
+    it('should extend callbacks', function() {
+      expect(Factory.build('anotherThing').afterCalled).toBe(true);
     });
   });
 
