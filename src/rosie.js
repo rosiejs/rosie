@@ -2,6 +2,7 @@ var Factory = function(constructor) {
   this.construct = constructor;
   this.attrs = {};
   this.sequences = {};
+  this.callbacks = [];
 };
 
 Factory.prototype = {
@@ -18,6 +19,11 @@ Factory.prototype = {
       factory.sequences[attr] = factory.sequences[attr] || 0;
       return callback(++factory.sequences[attr]);
     };
+    return this;
+  },
+
+  after: function(callback) {
+    this.callbacks.push(callback);
     return this;
   },
 
@@ -43,6 +49,10 @@ Factory.prototype = {
         this.attrs[attr] = factory.attrs[attr];
       }
     }
+    // Copy the parent's callbacks
+    for(var i = 0; i < factory.callbacks.length; i++) {
+        this.callbacks.push(factory.callbacks[i]);
+    }
     return this;
   }
 };
@@ -55,8 +65,12 @@ Factory.define = function(name, constructor) {
   return factory;
 };
 
-Factory.build = function(name, attrs) {
-  return this.factories[name].build(attrs);
+Factory.build = function(name, attrs, options) {
+  var obj = this.factories[name].build(attrs);
+  for(var i = 0; i < this.factories[name].callbacks.length; i++) {
+      this.factories[name].callbacks[i](obj, options);
+  }
+  return obj;
 };
 
 Factory.attributes = function(name, attrs) {
