@@ -47,11 +47,28 @@ describe('Factory', function() {
   });
 
   describe('extend', function() {
+    var Thing = function(attrs) {
+      for(var attr in attrs) {
+        this[attr] = attrs[attr];
+      }
+    };
+    var Thingy = function(attrs) {
+      for(var attr in attrs) {
+        this[attr] = attrs[attr];
+      }
+    };
+
     beforeEach(function() {
-      Factory.define('thing').attr('name', 'Thing 1').after(function(obj) {
+      Factory.define('thing', Thing).attr('name', 'Thing 1').after(function(obj) {
         obj.afterCalled = true;
       });
       Factory.define('anotherThing').extend('thing').attr('title', 'Title 1');
+      Factory.define('differentThing', Thingy).extend('thing').attr('title', 'Title 1');
+    });
+
+    it('should extend the constructor', function() {
+      expect(Factory.build('anotherThing') instanceof Thing).toBe(true);
+      expect(Factory.build('differentThing') instanceof Thingy).toBe(true);
     });
 
     it('should extend attributes', function() {

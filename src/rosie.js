@@ -44,6 +44,8 @@ Factory.prototype = {
 
   extend: function(name) {
     var factory = Factory.factories[name];
+    // Copy the parent's constructor
+    if (this.construct === undefined) { this.construct = factory.construct; }
     for(var attr in factory.attrs) {
       if(factory.attrs.hasOwnProperty(attr)) {
         this.attrs[attr] = factory.attrs[attr];
