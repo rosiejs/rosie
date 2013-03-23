@@ -149,14 +149,14 @@ describe('Factory', function() {
       });
 
       it('invokes the function during the build for traits set to true', function(){
-        person = Factory.build('person', {adult: true});
+        person = Factory.build('person', {traits: ['adult']});
 
         expect(person.name).toEqual('Terry Doe');
         expect(person.age).toEqual(36);
       });
 
       it('accepts an Array of arguments for the invoked function', function(){
-        person = Factory.build('person', {child: {age: 7}});
+        person = Factory.build('person', {traits: [{child: {age: 7}}]});
 
         expect(person.name).toEqual('Robin Doe');
         expect(person.age).toEqual(7);
@@ -164,10 +164,21 @@ describe('Factory', function() {
       });
 
       it('does not pollute the object with traits', function() {
-        person = Factory.build('person', {adult: true});
+        person = Factory.build('person', {traits: ['adult']});
 
+        expect(person.traits).not.toBeDefined();
         expect(person.adult).not.toBeDefined();
       });
+
+      it('ignores traits if an traits attr was defined', function() {
+        Factory.define('traitor').extend('person').attr('trait', 'cunning');
+        person = Factory.build('traitor', {traits: ['adult']});
+
+        expect(person.trait).toEqual('cunning');
+        expect(person.name).not.toEqual('Terry Doe');
+        expect(person.age).not.toEqual(36);
+        expect(person.traits).toEqual(['adult']);
+      })
     });
   });
 });

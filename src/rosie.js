@@ -37,19 +37,23 @@ Factory.prototype = {
     return this;
   },
 
-  build: function(attrs) {
-    for(var attr in attrs) {
-      if(this.traits[attr]) {
-        value = attrs[attr];
-        if(value === true) {
-          this.traits[attr].call(this);
-        } else {
-          this.traits[attr].call(this, value);
+  build: function(options) {
+    for(var attr in options) {
+      if(attr === 'traits' && options[attr] instanceof Array && this.attrs.trait === undefined) {
+        for(var i in options[attr]) {
+          var trait = options[attr][i];
+          if (typeof trait === 'string') {
+            this.traits[trait].call(this);
+          } else {
+            for(var j in trait) {
+              this.traits[j].call(this, trait[j]);
+            }
+          }
         }
-        delete attrs[attr];
+        delete options[attr];
       }
     }
-    var result = this.attributes(attrs);
+    var result = this.attributes(options);
     return this.construct ? new this.construct(result) : result;
   },
 
