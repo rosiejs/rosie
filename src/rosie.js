@@ -75,6 +75,14 @@ Factory.build = function(name, attrs, options) {
   return obj;
 };
 
+Factory.buildList = function(name, size, attrs, options) {
+  var objs = [];
+  for(var i = 0; i < size; i++) {
+    objs.push(Factory.build(name, attrs, options));
+  }
+  return objs;
+};
+
 Factory.attributes = function(name, attrs) {
   return this.factories[name].attributes(attrs);
 };
