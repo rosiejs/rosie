@@ -46,6 +46,30 @@ describe('Factory', function() {
     });
   });
 
+  describe('buildList', function () {
+    beforeEach(function() {
+      Factory.define('thing').attr('name', 'Thing 1');
+    });
+
+    it('should return array of objects', function() {
+       expect(Factory.buildList('thing', 10).length).toEqual(10);
+    });
+
+    it('should return array of objects with attributes set', function() {
+      var things = Factory.buildList('thing', 10);
+      for(var i = 0; i < 10; i++) {
+        expect(things[i]).toEqual({name: 'Thing 1'});
+      }
+    });
+
+    it('should return array of objects with attributes set', function() {
+      var things = Factory.buildList('thing', 10, {name:'changed'});
+      for(var i = 0; i < 10; i++) {
+        expect(things[i]).toEqual({name: 'changed'});
+      }
+    });
+  });
+
   describe('extend', function() {
     var Thing = function(attrs) {
       for(var attr in attrs) {
