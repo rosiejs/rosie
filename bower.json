@@ -1,0 +1,21 @@
+{
+  "name": "rosie",
+  "version": "0.2.0",
+  "main": "src/rosie.js",
+  "ignore": [
+    "spec/",
+    ".gitignore",
+    "Gemfile*",
+    "package.json",
+    "Rakefile"
+  ],
+  "dependencies": {},
+  "gitHead": "b45b52c277a47da99f79841296fa651617dff492",
+  "_id": "rosie@0.1.1",
+  "readme": "Rosie is a factory for building JavaScript objects, mostly useful for setting up test data.",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bkeepers/rosie"
+  }
+}
