@@ -17,7 +17,7 @@ Factory.prototype = {
     callback = callback || function(i) { return i; };
     this.attrs[attr] = function() {
       factory.sequences[attr] = factory.sequences[attr] || 0;
-      return callback(++factory.sequences[attr]);
+      return callback.call(this, ++factory.sequences[attr]);
     };
     return this;
   },
