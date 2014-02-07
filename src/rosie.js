@@ -68,6 +68,8 @@ Factory.define = function(name, constructor) {
 };
 
 Factory.build = function(name, attrs, options) {
+  if (! this.factories[name])
+    throw new Error('The "'+name+'" factory is not defined.');
   var obj = this.factories[name].build(attrs);
   for(var i = 0; i < this.factories[name].callbacks.length; i++) {
       this.factories[name].callbacks[i](obj, options);
