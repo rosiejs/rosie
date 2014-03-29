@@ -1,11 +1,32 @@
-{   "name": "rosie"
-  , "version": "0.2.0"
-  , "description": "factory for building JavaScript objects, mostly useful for setting up test data. Inspired by factory_girl"
-  , "keywords": ["factory", "rosie", "test"]
-  , "author": "Brandon Keepers <brandon@opensoul.org>"
-  , "contributors": []
-  , "dependencies"  : {}
-  , "engines": { "node": "*" }
-  , "repository": { "type": "git", "url": "git://github.com/bkeepers/rosie.git" }
-  , "main": "src/rosie.js"
+{
+  "name": "rosie",
+  "version": "0.2.0",
+  "description": "factory for building JavaScript objects, mostly useful for setting up test data. Inspired by factory_girl",
+  "keywords": [
+    "factory",
+    "rosie",
+    "test"
+  ],
+  "author": "Brandon Keepers <brandon@opensoul.org>",
+  "contributors": [],
+  "dependencies": {},
+  "devDependencies": {
+    "mocha": "^1.18.2",
+    "karma": "^0.12.1",
+    "karma-chrome-launcher": "^0.1.2",
+    "karma-jasmine": "^0.1.5",
+    "karma-phantomjs-launcher": "^0.1.2"
+  },
+  "engines": {
+    "node": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bkeepers/rosie.git"
+  },
+  "main": "src/rosie.js",
+  "scripts": {
+    "test": "./node_modules/karma/bin/karma start --singleRun true",
+    "watch": "./node_modules/karma/bin/karma start"
+  }
 }
