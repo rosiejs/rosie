@@ -11,7 +11,6 @@
   "contributors": [],
   "dependencies": {},
   "devDependencies": {
-    "mocha": "^1.18.2",
     "karma": "^0.12.1",
     "karma-chrome-launcher": "^0.1.2",
     "karma-jasmine": "^0.1.5",
