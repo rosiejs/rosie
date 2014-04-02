@@ -46,12 +46,22 @@ Which returns an object that looks roughly like:
 For a factory with a constructor, if you want just the attributes:
 
     Factory.attributes('game') // return just the attributes
-    
+
 You can also define a callback function to be run after building an object:
 
     Factory.define('coach').after(function(coach, options) { if (options.buildPlayer) { Factory.build('player', {coach_id: coach.id}; } })
-    
+
     Factory.build('coach', {}, {buildPlayer: true});
+
+## Contributing
+
+0. Fork it
+0. Create your feature branch (`git checkout -b my-new-feature`)
+0. Install the test dependencies (`script/bootstrap` - requires NodeJS and npm)
+0. Make your changes and make sure the tests pass (`npm test`)
+0. Commit your changes (`git commit -am 'Added some feature'`)
+0. Push to the branch (`git push origin my-new-feature`)
+0. Create new Pull Request
 
 ## Credits
 
