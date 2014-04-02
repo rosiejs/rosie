@@ -1,3 +1,5 @@
+// Factory = require('../../src/rosie.js').Factory;
+
 describe('Factory', function() {
   afterEach(function() {
     Factory.factories = {};
@@ -42,6 +44,11 @@ describe('Factory', function() {
 
       it('should allow overriding attributes', function() {
         expect(Factory.build('thing', {name:'changed'})).toEqual({name:'changed'});
+      });
+
+      it('throws error if the factory is not defined', function() {
+        expect(function(){Factory.build('nothing')})
+          .toThrow('The "nothing" factory is not defined.');
       });
     });
   });
