@@ -1,5 +1,3 @@
-// Factory = require('../../src/rosie.js').Factory;
-
 describe('Factory', function() {
   afterEach(function() {
     Factory.factories = {};
