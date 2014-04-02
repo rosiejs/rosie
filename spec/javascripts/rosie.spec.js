@@ -31,46 +31,39 @@ describe('Factory', function() {
       });
     });
 
-    describe('with a constructor with .isClass === true', function() {
-      var afterCalled;
-      var createCalled;
-      var obj;
+    describe('with a constructor with a .create() function', function() {
+      var afterArgs;
+      var createArgs;
+      var built;
+      var created;
 
       // i.e. an Ember class
-      var Thing = function(attrs) {
-        this.setProperties(attrs);
-      };
-
-      Thing.isClass = true;
-      Thing.create = function() {
-        createCalled = true;
-        return new Thing();
-      };
-
-      Thing.prototype.setProperties = function(attrs) {
-        for(var attr in attrs) {
-          this[attr] = attrs[attr];
+      var Thing = {
+        create: function() {
+          createArgs = [].slice.call(arguments);
+          created = {};
+          return created;
         }
       };
 
       beforeEach(function() {
-        createCalled = afterCalled = false;
-        Factory.define('thing', Thing).attr('name', 'Thing 1').after(function(obj) {
-          afterCalled = true;
+        createArgs = afterArgs = null;
+        Factory.define('thing', Thing).attr('name', 'Thing 1').after(function() {
+          afterArgs = [].slice.call(arguments);
         });
-        obj = Factory.build('thing');
-      });
-
-      it('should set attributes', function() {
-        expect(obj.name).toEqual('Thing 1');
+        built = Factory.build('thing');
       });
 
       it('should run callbacks', function() {
-        expect(afterCalled).toBe(true);
+        expect(afterArgs).toEqual([created, /* options = */undefined]);
       });
 
-      it('should call .create on the class', function() {
-        expect(createCalled).toBe(true);
+      it('should call .create on the class with the attributes', function() {
+        expect(createArgs).toEqual([{name: 'Thing 1'}]);
+      });
+
+      it('should return the value returned by create', function() {
+        expect(created).toBe(built);
       });
     });
 

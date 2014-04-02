@@ -284,10 +284,8 @@ Factory.prototype = {
     var retval = null;
 
     if (this.construct) {
-      // Adds support for Ember objects.
-      if (this.construct.isClass) {
-        retval = this.construct.create();
-        retval.setProperties(result);
+      if (typeof this.construct.create === 'function') {
+        retval = this.construct.create(result);
       } else {
         retval = new this.construct(result);
       }
