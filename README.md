@@ -13,16 +13,25 @@ Define your factory, giving it a name and optionally a constructor function:
       .attr('is_over', false)
       .attr('created_at', function() { return new Date(); })
       .attr('random_seed', function() { return Math.random(); })
-      .attr('players', function() {
-        return [
-          Factory.attributes('player'),
-          Factory.attributes('player')
-        ];
+
+      // Default to two players. If players were given, fill in
+      // whatever attributes might be missing.
+      .attr('players', ['players'], function(players) {
+        if (!players) { players = [{}, {}]; }
+        return players.map(function(data) {
+          return Factory.attributes('player', data);
+        });
       });
 
     Factory.define('player')
       .sequence('id')
-      .sequence('name', function(i) { return 'player' + i; });
+      .sequence('name', function(i) { return 'player' + i; })
+
+      // Define `position` to depend on `id`.
+      .attr('position', ['id'], function(id) {
+        var positions = ['pitcher', '1st base', '2nd base', '3rd base'];
+        return positions[id % positions.length];
+      });
 
     Factory.define('disabled-player').extend('player').attr('state', 'disabled')
 
@@ -49,7 +58,19 @@ For a factory with a constructor, if you want just the attributes:
 
 You can also define a callback function to be run after building an object:
 
-    Factory.define('coach').after(function(coach, options) { if (options.buildPlayer) { Factory.build('player', {coach_id: coach.id}; } })
+    Factory.define('coach')
+      .option('buildPlayer', false)
+      .sequence('id')
+      .attr('players', ['id', 'buildPlayer'], function(id, buildPlayer) {
+        if (buildPlayer) {
+          return [Factory.build('player', {coach_id: id})];
+        }
+      })
+      .after(function(coach, options) {
+        if (options.buildPlayer) {
+          console.log('built player:', coach.players[0]);
+        }
+      });
 
     Factory.build('coach', {}, {buildPlayer: true});
 
