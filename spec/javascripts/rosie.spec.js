@@ -4,7 +4,7 @@ describe('Factory', function() {
   });
 
   describe('build', function() {
-    describe('with a constructor', function() {
+    describe('with a normal constructor', function() {
       var Thing = function(attrs) {
         for(var attr in attrs) {
           this[attr] = attrs[attr];
@@ -27,7 +27,43 @@ describe('Factory', function() {
       });
 
       it('should run callbacks', function() {
-          expect(Factory.build('thing').afterCalled).toBe(true);
+        expect(Factory.build('thing').afterCalled).toBe(true);
+      });
+    });
+
+    describe('with a constructor with a .create() function', function() {
+      var afterArgs;
+      var createArgs;
+      var built;
+      var created;
+
+      // i.e. an Ember class
+      var Thing = {
+        create: function() {
+          createArgs = [].slice.call(arguments);
+          created = {};
+          return created;
+        }
+      };
+
+      beforeEach(function() {
+        createArgs = afterArgs = null;
+        Factory.define('thing', Thing).attr('name', 'Thing 1').after(function() {
+          afterArgs = [].slice.call(arguments);
+        });
+        built = Factory.build('thing');
+      });
+
+      it('should run callbacks', function() {
+        expect(afterArgs).toEqual([created, /* options = */undefined]);
+      });
+
+      it('should call .create on the class with the attributes', function() {
+        expect(createArgs).toEqual([{name: 'Thing 1'}]);
+      });
+
+      it('should return the value returned by create', function() {
+        expect(created).toBe(built);
       });
     });
 
@@ -146,6 +182,57 @@ describe('Factory', function() {
       it('should return the factory', function() {
         expect(factory.attr('foo', 1)).toBe(factory);
       });
+
+      it('should allow depending on other attributes', function() {
+        factory
+          .attr('fullName', ['firstName', 'lastName'], function(first, last) {
+            return first + ' ' + last;
+          })
+          .attr('firstName', 'Default')
+          .attr('lastName', 'Name');
+
+        expect(factory.attributes())
+          .toEqual({
+            firstName: 'Default',
+            lastName: 'Name',
+            fullName: 'Default Name'
+          });
+
+        expect(factory.attributes({ firstName: 'Michael', lastName: 'Bluth' }))
+          .toEqual({
+            fullName: 'Michael Bluth',
+            firstName: 'Michael',
+            lastName: 'Bluth'
+          });
+
+        expect(factory.attributes({ fullName: 'Buster Bluth' }))
+          .toEqual({
+            fullName: 'Buster Bluth',
+            firstName: 'Default',
+            lastName: 'Name'
+          });
+      });
+
+      it('throws when building when a dependency cycle is unbroken', function() {
+        factory
+          .option('rate', 0.0275)
+          .attr('fees', ['total', 'rate'], function(total, rate){ return total * rate; })
+          .attr('total', ['fees', 'rate'], function(fees, rate){ return fees / rate; });
+
+        expect(function(){ factory.build(); }).toThrow('detected a dependency cycle: fees -> total -> fees');
+      });
+
+      it('always calls dynamic attributes when they depend on themselves', function() {
+        factory.attr('person', ['person'], function(person) {
+          if (!person) { person = {}; }
+          if (!person.name) { person.name = 'Bob'; }
+          return person;
+        });
+
+        expect(factory.attributes({ person: { age: 55 }})).toEqual({
+          person: { name: 'Bob', age: 55 }
+        });
+      });
     });
 
     describe('sequence', function() {
@@ -189,6 +276,43 @@ describe('Factory', function() {
 
       it('should allow adding new attributes', function() {
         expect(factory.attributes({baz:3})).toEqual({foo:1, bar:2, baz:3});
+      });
+    });
+
+    describe('option', function() {
+      beforeEach(function() {
+        factory.option('useCapsLock', false);
+      });
+
+      it('should return the factory', function() {
+        expect(factory.option('rate')).toBe(factory);
+      });
+
+      it('should not create attributes in the build result', function() {
+        expect(factory.attributes().useCapsLock).toBeUndefined();
+      });
+
+      it('throws when no default or value is given', function() {
+        factory.option('someOptionWithoutAValue');
+        expect(function(){ factory.attributes(); }).toThrow('option `someOptionWithoutAValue` has no default value and none was provided');
+      });
+
+      it('should be usable by attributes', function() {
+        var useCapsLockValues = [];
+        factory.attr('name', ['useCapsLock'], function(useCapsLock) {
+          useCapsLockValues.push(useCapsLock);
+          var name = 'Madeline';
+          if (useCapsLock) {
+            return name.toUpperCase();
+          } else {
+            return name;
+          }
+        });
+        // use default values
+        expect(factory.attributes().name).toEqual('Madeline');
+        // override default values
+        expect(factory.attributes({}, { useCapsLock: true }).name).toEqual('MADELINE');
+        expect(useCapsLockValues).toEqual([false, true]);
       });
     });
   });
