@@ -255,6 +255,17 @@ describe('Factory', function() {
         expect(factory.attributes()).toEqual({id: 2, count: 2});
       });
 
+      it('should share the sequence when extending a factory', function() {
+        var User = Factory.define('User').sequence('id');
+        var AdminUser = Factory.define('AdminUser').extend('User');
+
+        var adminUser = AdminUser.build();
+        var user = User.build();
+
+        expect(adminUser.id).toEqual(1);
+        expect(user.id).toEqual(2);
+      });
+
       it('should use custom function', function() {
         factory.sequence('name', function(i) { return 'user' + i; });
         expect(factory.attributes().name).toEqual('user1');
