@@ -299,7 +299,7 @@ Factory.prototype = {
     }
 
     for (var i = 0; i < this.callbacks.length; i++) {
-      this.callbacks[i](retval, options);
+      this.callbacks[i](retval, this.options(options));
     }
     return retval;
   },

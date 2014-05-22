@@ -26,8 +26,21 @@ describe('Factory', function() {
         expect(Factory.build('thing')).toEqual({name: 'Thing 1', afterCalled: true});
       });
 
-      it('should run callbacks', function() {
-        expect(Factory.build('thing').afterCalled).toBe(true);
+      describe('running callbacks', function() {
+        beforeEach(function() {
+          Factory.define('thing', Thing).option('isAwesome', true).after(function(obj, options) {
+            obj.afterCalled = true;
+            obj.isAwesomeOption = options.isAwesome;
+          });
+        });
+
+        it('should run callbacks', function() {
+          expect(Factory.build('thing').afterCalled).toBe(true);
+        });
+
+        it('should pass options to the after callback', function(){
+          expect(Factory.build('thing').isAwesomeOption).toBe(true); 
+        });
       });
     });
 
@@ -55,7 +68,7 @@ describe('Factory', function() {
       });
 
       it('should run callbacks', function() {
-        expect(afterArgs).toEqual([created, /* options = */undefined]);
+        expect(afterArgs).toEqual([created, {}]);
       });
 
       it('should call .create on the class with the attributes', function() {
