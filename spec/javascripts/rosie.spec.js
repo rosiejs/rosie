@@ -109,6 +109,22 @@ describe('Factory', function() {
         expect(things[i]).toEqual({name: 'changed'});
       }
     });
+
+    it('should return an array of objects with a sequence', function() {
+      Factory.define('thing').sequence('id');
+      var things = Factory.buildList('thing', 4);
+      for(var i = 0; i < 4; i++) {
+        expect(things[i]).toEqual({id: i + 1});
+      }
+    });
+
+    it('should return an array of objects with a sequence and with specified attributes', function() {
+      Factory.define('thing').sequence('id').attr('name', 'Thing 1');
+      var things = Factory.buildList('thing', 4, {name: 'changed'});
+      for(var i = 0; i < 4; i++) {
+        expect(things[i]).toEqual({id: i + 1, name: 'changed'});
+      }
+    });
   });
 
   describe('extend', function() {
