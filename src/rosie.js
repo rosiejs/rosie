@@ -113,6 +113,10 @@ Factory.prototype = {
    * that accepts the number of the sequence and returns whatever value you'd
    * like it to be.
    *
+   * Sequence values are inherited such that a factory derived from another
+   * with a sequence will share the state of that sequence and they will never
+   * conflict.
+   *
    *   Factory.define('Person').sequence('id');
    *
    * @param {string} attr
@@ -120,10 +124,11 @@ Factory.prototype = {
    * @return {Factory}
    */
   sequence: function(attr, builder) {
+    var factory = this;
     builder = builder || function(i) { return i; };
     return this.attr(attr, function() {
-      this.sequences[attr] = this.sequences[attr] || 0;
-      return builder(++this.sequences[attr]);
+      factory.sequences[attr] = factory.sequences[attr] || 0;
+      return builder(++factory.sequences[attr]);
     });
   },
 
@@ -294,7 +299,7 @@ Factory.prototype = {
     }
 
     for (var i = 0; i < this.callbacks.length; i++) {
-      this.callbacks[i](retval, options);
+      this.callbacks[i](retval, this.options(options));
     }
     return retval;
   },
