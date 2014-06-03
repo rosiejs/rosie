@@ -170,11 +170,15 @@ Factory.prototype = {
    */
   attributes: function(attributes, options) {
     attributes = attributes || {};
+    var attrClone = {};
+    for (var attr in attributes) {
+      if (attributes.hasOwnProperty(attr)) attrClone[attr] = attributes[attr];
+    }
     options = this.options(options);
     for (var attr in this.attrs) {
-      this._attrValue(attr, attributes, options, [attr]);
+      this._attrValue(attr, attrClone, options, [attr]);
     }
-    return attributes;
+    return attrClone;
   },
 
   /**
