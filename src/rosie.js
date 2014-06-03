@@ -169,16 +169,12 @@ Factory.prototype = {
    * @return {object}
    */
   attributes: function(attributes, options) {
-    attributes = attributes || {};
-    var attrClone = {};
-    for (var attr in attributes) {
-      if (attributes.hasOwnProperty(attr)) attrClone[attr] = attributes[attr];
-    }
+    attributes = Factory.util.extend({}, attributes);
     options = this.options(options);
     for (var attr in this.attrs) {
-      this._attrValue(attr, attrClone, options, [attr]);
+      this._attrValue(attr, attributes, options, [attr]);
     }
-    return attrClone;
+    return attributes;
   },
 
   /**
@@ -193,12 +189,12 @@ Factory.prototype = {
    * @return {*}
    */
   _attrValue: function(attr, attributes, options, stack) {
-    if (!this._alwaysCallBuilder(attr) && attributes.hasOwnProperty(attr)) {
+    if (!this._alwaysCallBuilder(attr) && Factory.util.hasOwnProp(attributes, attr)) {
       return attributes[attr];
     }
 
     var value = this._buildWithDependencies(this.attrs[attr], function(dep) {
-      if (options.hasOwnProperty(dep)) {
+      if (Factory.util.hasOwnProp(options, dep)) {
         return options[dep];
       } else if (dep === attr) {
         return attributes[dep];
@@ -250,7 +246,7 @@ Factory.prototype = {
    * @return {*}
    */
   _optionValue: function(opt, options) {
-    if (options.hasOwnProperty(opt)) {
+    if (Factory.util.hasOwnProp(options, opt)) {
       return options[opt];
     }
 
@@ -320,21 +316,53 @@ Factory.prototype = {
     var factory = Factory.factories[name];
     // Copy the parent's constructor
     if (this.construct === undefined) { this.construct = factory.construct; }
-    for (var attr in factory.attrs) {
-      if (factory.attrs.hasOwnProperty(attr)) {
-        this.attrs[attr] = factory.attrs[attr];
-      }
-    }
-    for (var opt in factory.opts) {
-      if (factory.opts.hasOwnProperty(opt)) {
-        this.opts[opt] = factory.opts[opt];
-      }
-    }
+    Factory.util.extend(this.attrs, factory.attrs);
+    Factory.util.extend(this.opts, factory.opts);
     // Copy the parent's callbacks
     this.callbacks = factory.callbacks.slice();
     return this;
   }
 };
+
+/**
+ * @private
+ */
+Factory.util = (function() {
+  var hasOwnProp = Object.prototype.hasOwnProperty;
+
+  return {
+    /**
+     * Determines whether `object` has its own property named `prop`.
+     *
+     * @private
+     * @param {object} object
+     * @param {string} prop
+     * @return {boolean}
+     */
+    hasOwnProp: function(object, prop) {
+      return hasOwnProp.call(object, prop);
+    },
+
+    /**
+     * Extends `dest` with all of own properties of `source`.
+     *
+     * @private
+     * @param {object} dest
+     * @param {?object} source
+     * @return {object}
+     */
+    extend: function(dest, source) {
+      if (source) {
+        for (var key in source) {
+          if (hasOwnProp.call(source, key)) {
+            dest[key] = source[key];
+          }
+        }
+      }
+      return dest;
+    }
+  };
+})();
 
 Factory.factories = {};
 
