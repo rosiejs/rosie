@@ -3,7 +3,7 @@
  * objects. Generally you should use `Factory.define()` instead of this
  * constructor.
  *
- * @param {?Function} constructor
+ * @param {Function=} constructor
  * @class
  */
 var Factory = function(constructor) {
@@ -50,7 +50,7 @@ Factory.prototype = {
    * partially-specified child objects.
    *
    * @param {string} attr
-   * @param {?Array.<string>} dependencies
+   * @param {Array.<string>=} dependencies
    * @param {*} value
    * @return {Factory}
    */
@@ -90,8 +90,8 @@ Factory.prototype = {
    * when building.
    *
    * @param {string} attr
-   * @param {?Array.<string>} dependencies
-   * @param {?*} value
+   * @param {Array.<string>=} dependencies
+   * @param {*=} value
    * @return {Factory}
    */
   option: function(opt, dependencies, value) {
@@ -120,7 +120,7 @@ Factory.prototype = {
    *   Factory.define('Person').sequence('id');
    *
    * @param {string} attr
-   * @param {?function(number): *} builder
+   * @param {function(number): *=} builder
    * @return {Factory}
    */
   sequence: function(attr, builder) {
@@ -164,8 +164,8 @@ Factory.prototype = {
    * attributes. The result of this is the same as the result when using #build
    * when there is no constructor registered.
    *
-   * @param {?object} attributes
-   * @param {?object} options
+   * @param {object=} attributes
+   * @param {object=} options
    * @return {object}
    */
   attributes: function(attributes, options) {
@@ -348,7 +348,7 @@ Factory.util = (function() {
      *
      * @private
      * @param {object} dest
-     * @param {?object} source
+     * @param {object=} source
      * @return {object}
      */
     extend: function(dest, source) {
@@ -370,8 +370,8 @@ Factory.factories = {};
  * Defines a factory by name and constructor function. Call #attr and #option
  * on the result to define the properties of this factory.
  *
- * @param {string} name
- * @param {?function(object): *} constructor
+ * @param {!string} name
+ * @param {function(object): *=} constructor
  * @return {Factory}
  */
 Factory.define = function(name, constructor) {
