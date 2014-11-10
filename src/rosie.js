@@ -189,12 +189,12 @@ Factory.prototype = {
    * @return {*}
    */
   _attrValue: function(attr, attributes, options, stack) {
-    if (!this._alwaysCallBuilder(attr) && Factory.util.hasOwnProp(attributes, attr)) {
+    if (!this._alwaysCallBuilder(attr) && attributes.hasOwnProperty(attr)) {
       return attributes[attr];
     }
 
     var value = this._buildWithDependencies(this.attrs[attr], function(dep) {
-      if (Factory.util.hasOwnProp(options, dep)) {
+      if (options.hasOwnProperty(dep)) {
         return options[dep];
       } else if (dep === attr) {
         return attributes[dep];
@@ -246,7 +246,7 @@ Factory.prototype = {
    * @return {*}
    */
   _optionValue: function(opt, options) {
-    if (Factory.util.hasOwnProp(options, opt)) {
+    if (options.hasOwnProperty(opt)) {
       return options[opt];
     }
 
@@ -328,20 +328,8 @@ Factory.prototype = {
  * @private
  */
 Factory.util = (function() {
-  var hasOwnProp = Object.prototype.hasOwnProperty;
 
   return {
-    /**
-     * Determines whether `object` has its own property named `prop`.
-     *
-     * @private
-     * @param {object} object
-     * @param {string} prop
-     * @return {boolean}
-     */
-    hasOwnProp: function(object, prop) {
-      return hasOwnProp.call(object, prop);
-    },
 
     /**
      * Extends `dest` with all of own properties of `source`.
@@ -354,7 +342,7 @@ Factory.util = (function() {
     extend: function(dest, source) {
       if (source) {
         for (var key in source) {
-          if (hasOwnProp.call(source, key)) {
+          if (source.hasOwnProperty(key)) {
             dest[key] = source[key];
           }
         }
