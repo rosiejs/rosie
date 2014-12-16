@@ -9,6 +9,8 @@ Rosie is a factory for building JavaScript objects, mostly useful for setting up
 Define your factory, giving it a name and optionally a constructor function:
 
 ```js
+var Factory = require('rosie').Factory;
+
 Factory.define('game', Game)
   .sequence('id')
   .attr('is_over', false)
