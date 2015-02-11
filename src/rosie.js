@@ -123,12 +123,20 @@ Factory.prototype = {
    * @param {function(number): *=} builder
    * @return {Factory}
    */
-  sequence: function(attr, builder) {
+  sequence: function(attr, dependencies, builder) {
     var factory = this;
+
+    if (arguments.length === 2) {
+      builder = dependencies;
+      dependencies = null;
+    }
     builder = builder || function(i) { return i; };
-    return this.attr(attr, function() {
+    return this.attr(attr, dependencies, function() {
+      var args = [].slice.call(arguments);
+
       factory.sequences[attr] = factory.sequences[attr] || 0;
-      return builder(++factory.sequences[attr]);
+      args.unshift(++factory.sequences[attr]);
+      return builder.apply(null, args);
     });
   },
 

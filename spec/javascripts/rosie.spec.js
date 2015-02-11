@@ -299,6 +299,47 @@ describe('Factory', function() {
         factory.sequence('name', function(i) { return 'user' + i; });
         expect(factory.attributes().name).toEqual('user1');
       });
+
+      it('should be able to depend on one option', function() {
+        var startTime = 5;
+
+        factory.option('startTime', startTime).sequence('time', ['startTime'], function(i, startTime) {
+          return startTime + i;
+        });
+
+        expect(factory.attributes()).toEqual({time: startTime + 1});
+        expect(factory.attributes()).toEqual({time: startTime + 2});
+        expect(factory.attributes()).toEqual({time: startTime + 3});
+      });
+
+      it('should be able to depend on one attribute', function() {
+        var startTime = 5;
+
+        factory.attr('startTime', startTime).sequence('time', ['startTime'], function(i, startTime) {
+          return startTime + i;
+        });
+
+        expect(factory.attributes()).toEqual({startTime: startTime, time: startTime + 1});
+        expect(factory.attributes()).toEqual({startTime: startTime, time: startTime + 2});
+        expect(factory.attributes()).toEqual({startTime: startTime, time: startTime + 3});
+      });
+
+      it('should be able to depend on several attributes and options', function() {
+        var startTime = 5;
+        var endTime = 7;
+
+        factory
+          .attr('startTime', startTime)
+          .attr('endTime', endTime)
+          .option('checkEndTime', true)
+          .sequence('time', ['startTime', 'endTime', 'checkEndTime'], function(i, startTime, endTime, checkEndTime) {
+            return checkEndTime ? Math.min(startTime + i, endTime) : startTime + i;
+        });
+
+        expect(factory.attributes()).toEqual({startTime: startTime, endTime: endTime, time: startTime + 1});
+        expect(factory.attributes()).toEqual({startTime: startTime, endTime: endTime, time: startTime + 2});
+        expect(factory.attributes()).toEqual({startTime: startTime, endTime: endTime, time: startTime + 2});
+      });
     });
 
     describe('attributes', function() {
