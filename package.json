@@ -27,5 +27,8 @@
   "scripts": {
     "test": "./node_modules/karma/bin/karma start --singleRun true",
     "watch": "./node_modules/karma/bin/karma start"
-  }
+  },
+  "files": [
+    "src/rosie.js"
+  ]
 }
