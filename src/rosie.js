@@ -89,7 +89,7 @@ Factory.prototype = {
    * attributes. Options without default values must have a value specified
    * when building.
    *
-   * @param {string} attr
+   * @param {string} opt
    * @param {Array.<string>=} dependencies
    * @param {*=} value
    * @return {Factory}
@@ -120,6 +120,7 @@ Factory.prototype = {
    *   Factory.define('Person').sequence('id');
    *
    * @param {string} attr
+   * @param {Array.<string>=} dependencies
    * @param {function(number): *=} builder
    * @return {Factory}
    */
@@ -127,7 +128,7 @@ Factory.prototype = {
     var factory = this;
 
     if (arguments.length === 2) {
-      builder = dependencies;
+      builder = /** @type function(number): * */dependencies;
       dependencies = null;
     }
     builder = builder || function(i) { return i; };
@@ -157,7 +158,7 @@ Factory.prototype = {
    * Sets the constructor for this factory to be another factory. This can be
    * used to create more specific sub-types of factories.
    *
-   * @param {Factory}
+   * @param {Factory} parentFactory
    * @return {Factory}
    */
   inherits: function(parentFactory) {
@@ -249,7 +250,7 @@ Factory.prototype = {
    * given options list.
    *
    * @private
-   * @param {string}
+   * @param {string} opt
    * @param {object} options
    * @return {*}
    */
@@ -288,8 +289,8 @@ Factory.prototype = {
    * Builds objects by getting values for all attributes and optionally passing
    * the result to a constructor function.
    *
-   * @param {object} attributes
-   * @param {object} options
+   * @param {object=} attributes
+   * @param {object=} options
    * @return {*}
    */
   build: function(attributes, options) {
