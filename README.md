@@ -6,10 +6,10 @@ Rosie is a factory for building JavaScript objects, mostly useful for setting up
 
 ## Usage
 
-Define your factory, giving it a name and optionally a constructor function:
+Define your factory, giving it a name and optionally a constructor function (`Game` in this example):
 
 ```js
-Factory.define('game', Game)
+Factory.define('game'/*, Game*/)
   .sequence('id')
   .attr('is_over', false)
   .attr('created_at', function() { return new Date(); })
@@ -82,6 +82,34 @@ Factory.define('coach')
   });
 
 Factory.build('coach', {}, {buildPlayer: true});
+```
+
+### Node.js
+
+To use Rosie in node, you'll need to require it first:
+
+```js
+var Factory = require('rosie');
+```
+
+You might also choose to use unregistered factories, as it fits better with node's module pattern:
+
+```js
+// factories/game.js
+var Factory = require('rosie');
+
+module.exports = new Factory()
+  .sequence('id')
+  .attr('is_over', false)
+  // etc
+```
+
+To use the unregistered `Game` factory defined above:
+
+```js
+var Game = require('./factories/game');
+
+var game = Game.build({is_over: true});
 ```
 
 ## Contributing
