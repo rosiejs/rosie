@@ -432,6 +432,6 @@ Factory.attributes = function(name, attributes, options) {
   return this.factories[name].attributes(attributes, options);
 };
 
-if (typeof exports != "undefined") {
-  exports.Factory = Factory;
+if (typeof module !== 'undefined' && typeof module.exports !== 'undefined' ) {
+  module.exports = Factory;
 }
