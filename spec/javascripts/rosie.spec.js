@@ -138,6 +138,16 @@ describe('Factory', function() {
         expect(things[i]).toEqual({id: i + 1, name: 'changed'});
       }
     });
+
+    it('should evaluate a option for every member of the list', function() {
+      Factory.define('thing')
+        .option('random', function() { return Math.random(); })
+        .attr('number', ['random'], function(random) {
+          return random;
+        });
+      var things = Factory.buildList('thing', 2, {}, {});
+      expect(things[0].number).not.toEqual(things[1].number);
+    });
   });
 
   describe('extend', function() {

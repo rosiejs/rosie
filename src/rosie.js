@@ -369,7 +369,34 @@ Factory.util = (function() {
         }
       }
       return dest;
+    },
+
+    /**
+     * Clone a object and return a new instance.
+     * As in http://stackoverflow.com/questions/122102/what-is-the-most-efficient-way-to-clone-an-object/122190#122190
+     *
+     * @private
+     * @param {object} obj
+     * @return {object}
+     */
+    clone: function(obj) {
+      if(obj === null || typeof(obj) !== 'object' || 'isActiveClone' in obj) {
+        return obj;
+      }
+
+      var temp = obj.constructor(); // changed
+
+      for(var key in obj) {
+        if(Object.prototype.hasOwnProperty.call(obj, key)) {
+          obj['isActiveClone'] = null;
+          temp[key] = Factory.util.clone(obj[key]);
+          delete obj['isActiveClone'];
+        }
+      }
+
+      return temp;
     }
+    
   };
 })();
 
@@ -415,7 +442,11 @@ Factory.build = function(name, attributes, options) {
 Factory.buildList = function(name, size, attributes, options) {
   var objs = [];
   for (var i = 0; i < size; i++) {
-    objs.push(Factory.build(name, attributes, options));
+    objs.push(Factory.build(
+      name, 
+      Factory.util.clone(attributes), 
+      Factory.util.clone(options)
+    ));
   }
   return objs;
 };
