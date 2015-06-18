@@ -238,7 +238,7 @@ Factory.prototype = {
    * @return {object}
    */
   options: function(options) {
-    options = options || {};
+    options = Factory.util.extend({}, options || {});
     for (var opt in this.opts) {
       options[opt] = this._optionValue(opt, options);
     }
