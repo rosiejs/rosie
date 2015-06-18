@@ -1,6 +1,6 @@
 {
   "name": "rosie",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "factory for building JavaScript objects, mostly useful for setting up test data. Inspired by factory_girl",
   "keywords": [
     "factory",

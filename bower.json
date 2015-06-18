@@ -1,6 +1,6 @@
 {
   "name": "rosie",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "main": "src/rosie.js",
   "ignore": [
     "spec/",
