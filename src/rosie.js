@@ -298,11 +298,7 @@ Factory.prototype = {
     var retval = null;
 
     if (this.construct) {
-      if (typeof this.construct.create === 'function') {
-        retval = this.construct.create(result);
-      } else {
-        retval = new this.construct(result);
-      }
+      retval = new this.construct(result);
     } else {
       retval = result;
     }

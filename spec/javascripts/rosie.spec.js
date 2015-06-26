@@ -44,42 +44,6 @@ describe('Factory', function() {
       });
     });
 
-    describe('with a constructor with a .create() function', function() {
-      var afterArgs;
-      var createArgs;
-      var built;
-      var created;
-
-      // i.e. an Ember class
-      var Thing = {
-        create: function() {
-          createArgs = [].slice.call(arguments);
-          created = {};
-          return created;
-        }
-      };
-
-      beforeEach(function() {
-        createArgs = afterArgs = null;
-        Factory.define('thing', Thing).attr('name', 'Thing 1').after(function() {
-          afterArgs = [].slice.call(arguments);
-        });
-        built = Factory.build('thing');
-      });
-
-      it('should run callbacks', function() {
-        expect(afterArgs).toEqual([created, {}]);
-      });
-
-      it('should call .create on the class with the attributes', function() {
-        expect(createArgs).toEqual([{name: 'Thing 1'}]);
-      });
-
-      it('should return the value returned by create', function() {
-        expect(created).toBe(built);
-      });
-    });
-
     describe('without a constructor', function() {
       beforeEach(function() {
         Factory.define('thing').attr('name', 'Thing 1');
