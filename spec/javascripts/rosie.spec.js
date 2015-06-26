@@ -58,7 +58,7 @@ describe('Factory', function() {
       });
 
       it('throws error if the factory is not defined', function() {
-        expect(function(){Factory.build('nothing')})
+        expect(function(){ Factory.build('nothing'); })
           .toThrow('The "nothing" factory is not defined.');
       });
     });
