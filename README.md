@@ -112,6 +112,27 @@ var Game = require('./factories/game');
 var game = Game.build({is_over: true});
 ```
 
+#### ES6
+
+Unregistered factories are even more natural in ES6:
+
+```js
+// factories/game.js
+import { Factory } from 'rosie';
+
+export default new Factory()
+  .sequence('id')
+  .attr('is_over', false)
+  // etc
+  
+// index.js
+import Game from './factories/game');
+
+const game = Game.build({is_over: true});
+```
+
+A tool like [babel](https://babeljs.io) is currently required to use this syntax.
+
 ## Contributing
 
 0. Fork it
