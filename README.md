@@ -89,14 +89,14 @@ Factory.build('coach', {}, {buildPlayer: true});
 To use Rosie in node, you'll need to require it first:
 
 ```js
-var Factory = require('rosie');
+var Factory = require('rosie').Factory;
 ```
 
 You might also choose to use unregistered factories, as it fits better with node's module pattern:
 
 ```js
 // factories/game.js
-var Factory = require('rosie');
+var Factory = require('rosie').Factory;
 
 module.exports = new Factory()
   .sequence('id')
