@@ -428,6 +428,10 @@ Factory.attributes = function(name, attributes, options) {
   return this.factories[name].attributes(attributes, options);
 };
 
-if (typeof exports !== 'undefined') {
+if (typeof exports === 'object' && typeof module !== 'undefined') {
   exports.Factory = Factory;
+} else if (typeof define === 'function' && define.amd) {
+  define([], Factory);
+} else if (this) {
+  this.Factory = Factory;
 }
