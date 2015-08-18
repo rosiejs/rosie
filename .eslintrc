@@ -1,0 +1,39 @@
+{
+  "env": {
+    "node": true,
+    "mocha": true
+  },
+  "rules": {
+    "strict": 0,
+    "quotes": [
+      2,
+      "single",
+      "avoid-escape"
+    ],
+    "no-use-before-define": [
+      2,
+      "nofunc"
+    ],
+    "indent": [2, 2],
+    "no-underscore-dangle": 0,
+    "curly": 2,
+    "no-multi-spaces": 2,
+    "key-spacing": 2,
+    "no-return-assign": 2,
+    "consistent-return": 2,
+    "no-shadow": 0,
+    "comma-dangle": 2,
+    "no-empty": 2,
+    "new-parens": 2,
+    "no-cond-assign": 2,
+    "no-fallthrough": 2,
+    "new-cap": 2,
+    "no-loop-func": 2,
+    "no-unreachable": 2,
+    "no-labels": 2,
+    "no-process-exit": 2,
+    "camelcase": 2,
+    "no-console": 2,
+    "space-after-keywords": 2
+  }
+}

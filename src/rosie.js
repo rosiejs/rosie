@@ -208,7 +208,7 @@ Factory.prototype = {
       } else if (dep === attr) {
         return attributes[dep];
       } else if (stack.indexOf(dep) >= 0) {
-        throw new Error('detected a dependency cycle: '+stack.concat([dep]).join(' -> '));
+        throw new Error('detected a dependency cycle: ' + stack.concat([dep]).join(' -> '));
       } else {
         return this._attrValue(dep, attributes, options, stack.concat([dep]));
       }
@@ -261,7 +261,7 @@ Factory.prototype = {
 
     var optMeta = this.opts[opt];
     if (!optMeta.builder) {
-      throw new Error('option `'+opt+'` has no default value and none was provided');
+      throw new Error('option `' + opt + '` has no default value and none was provided');
     }
 
     return this._buildWithDependencies(optMeta, function(dep) {
@@ -298,7 +298,8 @@ Factory.prototype = {
     var retval = null;
 
     if (this.construct) {
-      retval = new this.construct(result);
+      var Constructor = this.construct;
+      retval = new Constructor(result);
     } else {
       retval = result;
     }
@@ -389,13 +390,14 @@ Factory.define = function(name, constructor) {
  * Locates a factory by name and calls #build on it.
  *
  * @param {string} name
- * @param {object} attributes
- * @param {object} options
+ * @param {object=} attributes
+ * @param {object=} options
  * @return {*}
  */
 Factory.build = function(name, attributes, options) {
-  if (!this.factories[name])
-    throw new Error('The "'+name+'" factory is not defined.');
+  if (!this.factories[name]) {
+    throw new Error('The "' + name + '" factory is not defined.');
+  }
   return this.factories[name].build(attributes, options);
 };
 
@@ -404,8 +406,8 @@ Factory.build = function(name, attributes, options) {
  *
  * @param {string} name
  * @param {number} size
- * @param {object} attributes
- * @param {object} options
+ * @param {object=} attributes
+ * @param {object=} options
  * @return {Array.<*>}
  */
 Factory.buildList = function(name, size, attributes, options) {

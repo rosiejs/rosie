@@ -6,7 +6,7 @@ describe('Factory', function() {
   describe('build', function() {
     describe('with a normal constructor', function() {
       var Thing = function(attrs) {
-        for(var attr in attrs) {
+        for (var attr in attrs) {
           this[attr] = attrs[attr];
         }
       };
@@ -50,11 +50,11 @@ describe('Factory', function() {
       });
 
       it('should return object with attributes set', function() {
-        expect(Factory.build('thing')).toEqual({name:'Thing 1'});
+        expect(Factory.build('thing')).toEqual({name: 'Thing 1'});
       });
 
       it('should allow overriding attributes', function() {
-        expect(Factory.build('thing', {name:'changed'})).toEqual({name:'changed'});
+        expect(Factory.build('thing', {name: 'changed'})).toEqual({name: 'changed'});
       });
 
       it('throws error if the factory is not defined', function() {
@@ -70,19 +70,19 @@ describe('Factory', function() {
     });
 
     it('should return array of objects', function() {
-       expect(Factory.buildList('thing', 10).length).toEqual(10);
+      expect(Factory.buildList('thing', 10).length).toEqual(10);
     });
 
     it('should return array of objects with default attributes', function() {
       var things = Factory.buildList('thing', 10);
-      for(var i = 0; i < 10; i++) {
+      for (var i = 0; i < 10; i++) {
         expect(things[i]).toEqual({name: 'Thing 1'});
       }
     });
 
     it('should return array of objects with specified attributes', function() {
-      var things = Factory.buildList('thing', 10, {name:'changed'});
-      for(var i = 0; i < 10; i++) {
+      var things = Factory.buildList('thing', 10, {name: 'changed'});
+      for (var i = 0; i < 10; i++) {
         expect(things[i]).toEqual({name: 'changed'});
       }
     });
@@ -90,7 +90,7 @@ describe('Factory', function() {
     it('should return an array of objects with a sequence', function() {
       Factory.define('thing').sequence('id');
       var things = Factory.buildList('thing', 4);
-      for(var i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         expect(things[i]).toEqual({id: i + 1});
       }
     });
@@ -98,7 +98,7 @@ describe('Factory', function() {
     it('should return an array of objects with a sequence and with specified attributes', function() {
       Factory.define('thing').sequence('id').attr('name', 'Thing 1');
       var things = Factory.buildList('thing', 4, {name: 'changed'});
-      for(var i = 0; i < 4; i++) {
+      for (var i = 0; i < 4; i++) {
         expect(things[i]).toEqual({id: i + 1, name: 'changed'});
       }
     });
@@ -116,12 +116,12 @@ describe('Factory', function() {
 
   describe('extend', function() {
     var Thing = function(attrs) {
-      for(var attr in attrs) {
+      for (var attr in attrs) {
         this[attr] = attrs[attr];
       }
     };
     var Thingy = function(attrs) {
-      for(var attr in attrs) {
+      for (var attr in attrs) {
         this[attr] = attrs[attr];
       }
     };
@@ -140,7 +140,7 @@ describe('Factory', function() {
     });
 
     it('should extend attributes', function() {
-      expect(Factory.build('anotherThing')).toEqual({name:'Thing 1', title:'Title 1', afterCalled: true});
+      expect(Factory.build('anotherThing')).toEqual({name: 'Thing 1', title: 'Title 1', afterCalled: true});
     });
 
     it('should extend callbacks', function() {
@@ -154,11 +154,11 @@ describe('Factory', function() {
     });
 
     it('should return object with attributes set', function() {
-      expect(Factory.attributes('thing')).toEqual({name:'Thing 1'});
+      expect(Factory.attributes('thing')).toEqual({name: 'Thing 1'});
     });
 
     it('should allow overriding attributes', function() {
-      expect(Factory.attributes('thing', {name:'changed'})).toEqual({name:'changed'});
+      expect(Factory.attributes('thing', {name: 'changed'})).toEqual({name: 'changed'});
     });
   });
 
@@ -308,7 +308,7 @@ describe('Factory', function() {
           .option('checkEndTime', true)
           .sequence('time', ['startTime', 'endTime', 'checkEndTime'], function(i, startTime, endTime, checkEndTime) {
             return checkEndTime ? Math.min(startTime + i, endTime) : startTime + i;
-        });
+          });
 
         expect(factory.attributes()).toEqual({startTime: startTime, endTime: endTime, time: startTime + 1});
         expect(factory.attributes()).toEqual({startTime: startTime, endTime: endTime, time: startTime + 2});
@@ -322,15 +322,15 @@ describe('Factory', function() {
       });
 
       it('should allow overriding an attribute', function() {
-        expect(factory.attributes({bar:3})).toEqual({foo:1, bar:3});
+        expect(factory.attributes({bar: 3})).toEqual({foo: 1, bar: 3});
       });
 
       it('should allow overriding an attribute with a falsy value', function() {
-        expect(factory.attributes({bar:false})).toEqual({foo:1, bar:false});
+        expect(factory.attributes({bar: false})).toEqual({foo: 1, bar: false});
       });
 
       it('should allow adding new attributes', function() {
-        expect(factory.attributes({baz:3})).toEqual({foo:1, bar:2, baz:3});
+        expect(factory.attributes({baz: 3})).toEqual({foo: 1, bar: 2, baz: 3});
       });
     });
 
