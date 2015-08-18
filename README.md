@@ -1,5 +1,7 @@
 # Rosie
 
+[![Build Status](https://travis-ci.org/rosiejs/rosie.svg?branch=master)](https://travis-ci.org/rosiejs/rosie)
+
 ![Rosie the Riveter](http://upload.wikimedia.org/wikipedia/commons/thumb/1/12/We_Can_Do_It%21.jpg/220px-We_Can_Do_It%21.jpg)
 
 Rosie is a factory for building JavaScript objects, mostly useful for setting up test data. It is inspired by [factory_girl](https://github.com/thoughtbot/factory_girl).
