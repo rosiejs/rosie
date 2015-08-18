@@ -8,7 +8,7 @@
     "test"
   ],
   "author": "Brandon Keepers <brandon@opensoul.org>",
-  "contributors": [],
+  "contributors": ["Brian Donovan <me@brian-donovan.com>"],
   "dependencies": {},
   "devDependencies": {
     "karma": "^0.12.1",
