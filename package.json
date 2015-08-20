@@ -32,5 +32,6 @@
   },
   "files": [
     "src/rosie.js"
-  ]
+  ],
+  "license": "MIT"
 }
