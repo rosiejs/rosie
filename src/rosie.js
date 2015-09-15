@@ -310,6 +310,14 @@ Factory.prototype = {
     return retval;
   },
 
+  buildList: function(size, attributes, options) {
+    var objs = [];
+    for (var i = 0; i < size; i++) {
+      objs.push(this.build(attributes, options));
+    }
+    return objs;
+  },
+
   /**
    * Extends a given factory by copying over its attributes, options,
    * callbacks, and constructor. This can be useful when you want to make
