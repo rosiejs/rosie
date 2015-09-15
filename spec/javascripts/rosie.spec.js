@@ -112,6 +112,54 @@ describe('Factory', function() {
       var things = Factory.buildList('thing', 2, {}, {});
       expect(things[0].number).not.toEqual(things[1].number);
     });
+
+    describe('with an unregistered factory', function() {
+      var Other = new Factory().attr('name', 'Other 1');
+
+      it('should return array of objects', function() {
+        expect(Other.buildList(10).length).toEqual(10);
+      });
+
+      it('should return array of objects with default attributes', function() {
+        var list = Other.buildList(10);
+        list.forEach(function(item) {
+          expect(item).toEqual({name: 'Other 1'});
+        });
+      });
+
+      it('should reutrn array of objects with specified attributes', function() {
+        var list = Other.buildList(10, {name: 'changed'});
+        list.forEach(function(item) {
+          expect(item).toEqual({name: 'changed'});
+        });
+      });
+
+      it('should return an array of objects with a sequence', function() {
+        var Another = new Factory().sequence('id');
+        var list = Another.buildList(4);
+        list.forEach(function(item, idx) {
+          expect(item).toEqual({id: idx + 1});
+        });
+      });
+
+      it('should return an array of objects with a sequence and with specified attributes', function() {
+        var Another = new Factory().sequence('id').attr('name', 'Another 1');
+        var list = Another.buildList(4, {name: 'changed'});
+        list.forEach(function(item, idx) {
+          expect(item).toEqual({id: idx + 1, name: 'changed'});
+        });
+      });
+
+      it('should evaluate an option for every member of the list', function() {
+        var Another = new Factory()
+            .option('random', Math.random)
+            .attr('number', ['random'], function(random) {
+              return random;
+            });
+        var list = Another.buildList(2, {}, {});
+        expect(list[0].number).not.toEqual(list[1].number);
+      });
+    });
   });
 
   describe('extend', function() {
