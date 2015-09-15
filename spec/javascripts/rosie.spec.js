@@ -23,7 +23,7 @@ describe('Factory', function() {
       });
 
       it('should set attributes', function() {
-        expect(Factory.build('thing')).toEqual({name: 'Thing 1', afterCalled: true});
+        expect(Factory.build('thing')).toEqual(jasmine.objectContaining({name: 'Thing 1', afterCalled: true}));
       });
 
       describe('running callbacks', function() {
@@ -59,7 +59,7 @@ describe('Factory', function() {
 
       it('throws error if the factory is not defined', function() {
         expect(function(){ Factory.build('nothing'); })
-          .toThrow('The "nothing" factory is not defined.');
+          .toThrowError(Error, 'The "nothing" factory is not defined.');
       });
     });
   });
@@ -189,7 +189,7 @@ describe('Factory', function() {
       });
 
       it('should extend attributes', function() {
-        expect(Factory.build('anotherThing')).toEqual({name: 'Thing 1', title: 'Title 1', afterCalled: true});
+        expect(Factory.build('anotherThing')).toEqual(jasmine.objectContaining({name: 'Thing 1', title: 'Title 1', afterCalled: true}));
       });
 
       it('should extend callbacks', function() {
@@ -220,7 +220,7 @@ describe('Factory', function() {
       });
 
       it('should extend attributes', function() {
-        expect(ChildFactory.build()).toEqual({name: 'Parent', title: 'Child', afterCalled: true});
+        expect(ChildFactory.build()).toEqual(jasmine.objectContaining({name: 'Parent', title: 'Child', afterCalled: true}));
       });
 
       it('should extend callbacks', function() {
@@ -307,7 +307,7 @@ describe('Factory', function() {
           .attr('fees', ['total', 'rate'], function(total, rate){ return total * rate; })
           .attr('total', ['fees', 'rate'], function(fees, rate){ return fees / rate; });
 
-        expect(function(){ factory.build(); }).toThrow('detected a dependency cycle: fees -> total -> fees');
+        expect(function(){ factory.build(); }).toThrowError(Error, 'detected a dependency cycle: fees -> total -> fees');
       });
 
       it('always calls dynamic attributes when they depend on themselves', function() {
@@ -434,7 +434,7 @@ describe('Factory', function() {
 
       it('throws when no default or value is given', function() {
         factory.option('someOptionWithoutAValue');
-        expect(function(){ factory.attributes(); }).toThrow('option `someOptionWithoutAValue` has no default value and none was provided');
+        expect(function(){ factory.attributes(); }).toThrowError(Error, 'option `someOptionWithoutAValue` has no default value and none was provided');
       });
 
       it('should be usable by attributes', function() {
