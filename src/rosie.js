@@ -319,7 +319,7 @@ Factory.prototype = {
    * @return {Factory}
    */
   extend: function(name) {
-    var factory = Factory.factories[name];
+    var factory = (typeof name === 'string') ? Factory.factories[name] : name;
     // Copy the parent's constructor
     if (this.construct === undefined) { this.construct = factory.construct; }
     Factory.util.extend(this.attrs, factory.attrs);

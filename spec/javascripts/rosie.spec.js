@@ -126,25 +126,62 @@ describe('Factory', function() {
       }
     };
 
-    beforeEach(function() {
-      Factory.define('thing', Thing).attr('name', 'Thing 1').after(function(obj) {
-        obj.afterCalled = true;
+    describe('with registered factories', function() {
+      beforeEach(function() {
+        Factory.define('thing', Thing).attr('name', 'Thing 1').after(function(obj) {
+          obj.afterCalled = true;
+        });
+        Factory.define('anotherThing').extend('thing').attr('title', 'Title 1');
+        Factory.define('differentThing', Thingy).extend('thing').attr('name', 'Different Thing');
       });
-      Factory.define('anotherThing').extend('thing').attr('title', 'Title 1');
-      Factory.define('differentThing', Thingy).extend('thing').attr('title', 'Title 1');
+
+      it('should extend the constructor', function() {
+        expect(Factory.build('anotherThing') instanceof Thing).toBe(true);
+        expect(Factory.build('differentThing') instanceof Thingy).toBe(true);
+      });
+
+      it('should extend attributes', function() {
+        expect(Factory.build('anotherThing')).toEqual({name: 'Thing 1', title: 'Title 1', afterCalled: true});
+      });
+
+      it('should extend callbacks', function() {
+        expect(Factory.build('anotherThing').afterCalled).toBe(true);
+      });
+
+      it('should override attributes', function() {
+        expect(Factory.build('differentThing').name).toBe('Different Thing');
+      });
     });
 
-    it('should extend the constructor', function() {
-      expect(Factory.build('anotherThing') instanceof Thing).toBe(true);
-      expect(Factory.build('differentThing') instanceof Thingy).toBe(true);
-    });
+    describe('with unregistered factories', function() {
+      var ParentFactory;
+      var ChildFactory;
+      var SiblingFactory;
 
-    it('should extend attributes', function() {
-      expect(Factory.build('anotherThing')).toEqual({name: 'Thing 1', title: 'Title 1', afterCalled: true});
-    });
+      beforeEach(function() {
+        ParentFactory = new Factory(Thing).attr('name', 'Parent').after(function(obj) {
+          obj.afterCalled = true;
+        });
+        ChildFactory = new Factory().extend(ParentFactory).attr('title', 'Child');
+        SiblingFactory = new Factory(Thingy).extend(ParentFactory).attr('name', 'Sibling');
+      });
 
-    it('should extend callbacks', function() {
-      expect(Factory.build('anotherThing').afterCalled).toBe(true);
+      it('should extend the constructor', function() {
+        expect(ChildFactory.build() instanceof Thing).toBe(true);
+        expect(SiblingFactory.build() instanceof Thingy).toBe(true);
+      });
+
+      it('should extend attributes', function() {
+        expect(ChildFactory.build()).toEqual({name: 'Parent', title: 'Child', afterCalled: true});
+      });
+
+      it('should extend callbacks', function() {
+        expect(SiblingFactory.build().afterCalled).toBe(true);
+      });
+
+      it('should override attributes', function() {
+        expect(SiblingFactory.build().name).toBe('Sibling');
+      });
     });
   });
 
