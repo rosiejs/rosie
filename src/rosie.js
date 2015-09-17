@@ -441,7 +441,7 @@ Factory.attributes = function(name, attributes, options) {
 if (typeof exports === 'object' && typeof module !== 'undefined') {
   exports.Factory = Factory;
 } else if (typeof define === 'function' && define.amd) {
-  define([], Factory);
+  define([], function() { return {Factory: Factory}; });
 } else if (this) {
   this.Factory = Factory;
 }
