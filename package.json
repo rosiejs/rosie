@@ -14,10 +14,12 @@
   "dependencies": {},
   "devDependencies": {
     "eslint": "^1.4.1",
+    "jasmine-core": "^2.4.1",
     "karma": "^0.13.9",
     "karma-chrome-launcher": "^0.2.0",
     "karma-jasmine": "^0.3.6",
-    "karma-phantomjs-launcher": "^0.2.1"
+    "karma-phantomjs-launcher": "^0.2.1",
+    "phantomjs": "^1.9.19"
   },
   "engines": {
     "node": "*"
