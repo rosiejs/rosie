@@ -86,6 +86,12 @@ Factory.define('coach')
 Factory.build('coach', {}, {buildPlayer: true});
 ```
 
+To build a collection of objects, use `buildList`:
+
+```js
+Factory.build('player', 3, {name: 'Susie Lumpkins'});
+```
+
 ### Node.js
 
 To use Rosie in node, you'll need to require it first:
