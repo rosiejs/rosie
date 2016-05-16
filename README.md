@@ -230,7 +230,7 @@ Additionally factories can be defined and accessed via the Factory singleton, or
 
 ###Factory declaration functions
 
-Once you have an instance returned from a `Factory.define` call, you do the actual of work of defining the objects. This is done the methods below on the Factory instance that is returned from `Factory.define` or from `new Factory()`  (note these are typically chained together as in the examples above):
+Once you have an instance returned from a `Factory.define` or a `new Factory()` call, you do the actual of work of defining the objects. This is done using the methods below (note these are typically chained together as in the examples above):
 
 #### Factory.define
 
