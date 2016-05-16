@@ -35,7 +35,7 @@ Factory.define('game')
 
 Factory.define('player')
   .sequence('id')
-  .sequence('name', function(i) { return 'player' + i; })
+  .sequence('name', function(i) { return 'player' + i; });
 
   // Define `position` to depend on `id`.
   .attr('position', ['id'], function(id) {
@@ -43,7 +43,7 @@ Factory.define('player')
     return positions[id % positions.length];
   });
 
-Factory.define('disabled-player').extend('player').attr('state', 'disabled')
+Factory.define('disabled-player').extend('player').attr('state', 'disabled');
 ```
 
 **Object Building:** Build an object, passing in attributes that you want to override:
@@ -66,7 +66,7 @@ var game = Factory.build('game', {is_over:true});
 For a factory with a constructor, if you want just the attributes:
 
 ```js
-Factory.attributes('game') // return just the attributes
+Factory.attributes('game'); // return just the attributes
 ```
 
 ### Programmatic Generation of Attributes
@@ -86,12 +86,12 @@ Factory.define('matches')
         matchDate: moment(seasonStart).add(i, 'week').format('YYYY-MM-DD'),
         homeScore: Math.floor(Math.random() * 5),
         awayScore: Math.floor(Math.random() * 5)
-      })
+      });
     }
     return matches;
-  })
+  });
 
-Factory.build('matches', { seasonStart: '2016-03-12' }, { numMatches: 3 })
+Factory.build('matches', { seasonStart: '2016-03-12' }, { numMatches: 3 });
 // Built object (note scores are random):
 //{
 //  seasonStart: '2016-03-12',
@@ -142,20 +142,20 @@ Specifically, the output of `.build` is used as the input to the constructor fun
 ```js
 var SimpleClass = function(args) {
   this.moops = 'correct';
-  this.args = args
+  this.args = args;
 };
 
 SimpleClass.prototype = {
   isMoopsCorrect: function() {
     return this.moops;
   }
-}
+};
 
 testFactory = Factory.define('test', SimpleClass)
-  .attr('some_var', 4)
+  .attr('some_var', 4);
 
 testInstance = testFactory.build({ stuff: 2 });
-console.log(JSON.stringify(testInstance, {}, 2))
+console.log(JSON.stringify(testInstance, {}, 2));
 // Output:
 // {
 //   "moops": "correct",
@@ -189,7 +189,7 @@ var Factory = require('rosie').Factory;
 
 module.exports = new Factory()
   .sequence('id')
-  .attr('is_over', false)
+  .attr('is_over', false);
   // etc
 ```
 
@@ -211,7 +211,7 @@ import { Factory } from 'rosie';
 
 export default new Factory()
   .sequence('id')
-  .attr('is_over', false)
+  .attr('is_over', false);
   // etc
 
 // index.js
@@ -228,7 +228,7 @@ As stated above the rosie factory signatures can be broken into factory definiti
 
 Additionally factories can be defined and accessed via the Factory singleton, or they can be created and maintained by the callee.
 
-###Factory declaration functions
+### Factory declaration functions
 
 Once you have an instance returned from a `Factory.define` or a `new Factory()` call, you do the actual of work of defining the objects. This is done using the methods below (note these are typically chained together as in the examples above):
 
@@ -244,29 +244,29 @@ Use this to define attributes of your objects
 
 * **instance.attr(`attribute_name`, `default_value`)** - `attribute_name` is required and is a string, `default_value` is the value to use by default for the attribute
 * **instance.attr(`attribute_name`, `generator_function`)** - `generator_function` is called to generate the value of the attribute
-* **instance.attr(`attribute_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the attribute. This string of `dependencies` will match the parameters that are passed to the `generator_function`
+* **instance.attr(`attribute_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the attribute. This list of `dependencies` will match the parameters that are passed to the `generator_function`
 
 #### instance.option:
 
-Use this to define options used to programatically generate attributes of your objects
+Use this to define options. Options do not appear in the generated object, but they can be used in a `generator_function` that is used to configure an attribute or sequence that appears in the generated object. See the [Programmatic Generation Of Attributes](#programmatic-generation-of-attributes) section for examples.
 
-* **instance.option(option_name, `default_value`)** - option_name is required and is a string, `default_value` is the value to use by default for the option
-* **instance.option(option_name, `generator_function`)** - `generator_function` is called to generate the value of the option
-* **instance.option(option_name, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the option. This string of `dependencies` will match the parameters that are passed to the `generator_function`
+* **instance.option(`option_name`, `default_value`)** - `option_name` is required and is a string, `default_value` is the value to use by default for the option
+* **instance.option(`option_name`, `generator_function`)** - `generator_function` is called to generate the value of the option
+* **instance.option(`option_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the option. This list of `dependencies` will match the parameters that are passed to the `generator_function`
 
 #### instance.sequence:
 
 Use this to define an auto incrementing sequence field in your object
 
 * **instance.sequence(`sequence_name`)** - define a sequence called `sequence_name`, set the start value to 1
-* **instance.sequence(`sequence_name`, `generator_function`)** - `generator_function` is called to generate the value of the sequence
-* **instance.sequence(`sequence_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the option. This string of `dependencies` will match the parameters that are passed to the `generator_function`
+* **instance.sequence(`sequence_name`, `generator_function`)** - `generator_function` is called to generate the value of the sequence. When the `generator_function` is called the pre-incremented sequence number will be passed as the first parameter, followed by any dependencies that have been specified.
+* **instance.sequence(`sequence_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the option. The value of each specified dependency will be passed ar parameters 2..N to the `generator_function`, noting again that the pre-incremented sequence number is passed as the first parameter.
 
 #### instance.after:
 
-* **instance.after(`callback`)** - register a `callback` function that will be called at the end of the object build process. The `callback` is invoked with two params: (`build_object`, `object_options`)
+* **instance.after(`callback`)** - register a `callback` function that will be called at the end of the object build process. The `callback` is invoked with two params: (`build_object`, `object_options`). See the [Post Build Callback](#post-build-callback) section for examples.
 
-###Object building functions
+### Object building functions
 
 #### build
 
