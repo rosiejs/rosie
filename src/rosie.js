@@ -162,6 +162,7 @@ Factory.prototype = {
    * @return {Factory}
    */
   inherits: function(parentFactory) {
+    console.warn('Factory#inherits is deprecated and will be removed in rosie v2. Please use Factory#extends instead.');
     this.construct = function(attributes, options) {
       return Factory.build(parentFactory, attributes, options);
     };
