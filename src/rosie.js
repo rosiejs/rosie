@@ -51,7 +51,7 @@ Factory.prototype = {
    *
    * @param {string} attr
    * @param {Array.<string>=} dependencies
-   * @param {*} value
+   * @param {*=} value
    * @return {Factory}
    */
   attr: function(attr, dependencies, value) {
@@ -146,7 +146,7 @@ Factory.prototype = {
    * options for the build just before they are returned from the #build
    * function.
    *
-   * @param {function(object, ?object)} callback
+   * @param {function(object, object=)} callback
    * @return {Factory}
    */
   after: function(callback) {
@@ -234,7 +234,7 @@ Factory.prototype = {
    * Generates values for all the registered options using the values given.
    *
    * @private
-   * @param {object} options
+   * @param {?object} options
    * @return {object}
    */
   options: function(options) {
@@ -323,7 +323,7 @@ Factory.prototype = {
    * callbacks, and constructor. This can be useful when you want to make
    * different types which all share certain attributes.
    *
-   * @param {string} name The factory to extend.
+   * @param {string|Factory} name The factory to extend.
    * @return {Factory}
    */
   extend: function(name) {
