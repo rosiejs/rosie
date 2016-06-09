@@ -8,7 +8,7 @@
  */
 var Factory = function(constructor) {
   this.construct = constructor;
-  this.attrs = {};
+  this._attrs = {};
   this.opts = {};
   this.sequences = {};
   this.callbacks = [];
@@ -62,7 +62,30 @@ Factory.prototype = {
     }
 
     builder = typeof value === 'function' ? value : function() { return value; };
-    this.attrs[attr] = { dependencies: dependencies || [], builder: builder };
+    this._attrs[attr] = { dependencies: dependencies || [], builder: builder };
+    return this;
+  },
+
+  /**
+   * Convenience function for defining a set of attributes on this object as
+   * builder functions or static values. If you need to specify dependencies,
+   * use #attr instead.
+   *
+   * For example:
+   *   Factory.define('Person').attrs({
+   *     name: 'Michael',
+   *     age: function() { return Math.random() * 100; }
+   *   })
+   *
+   * @param {object} attributes
+   * @return {Factory}
+   */
+  attrs: function(attributes) {
+    for (var attr in attributes) {
+      if (Factory.util.hasOwnProp(attributes, attr)) {
+        this.attr(attr, attributes[attr]);
+      }
+    }
     return this;
   },
 
@@ -181,7 +204,7 @@ Factory.prototype = {
   attributes: function(attributes, options) {
     attributes = Factory.util.extend({}, attributes);
     options = this.options(options);
-    for (var attr in this.attrs) {
+    for (var attr in this._attrs) {
       this._attrValue(attr, attributes, options, [attr]);
     }
     return attributes;
@@ -203,7 +226,7 @@ Factory.prototype = {
       return attributes[attr];
     }
 
-    var value = this._buildWithDependencies(this.attrs[attr], function(dep) {
+    var value = this._buildWithDependencies(this._attrs[attr], function(dep) {
       if (Factory.util.hasOwnProp(options, dep)) {
         return options[dep];
       } else if (dep === attr) {
@@ -227,7 +250,7 @@ Factory.prototype = {
    * @return {boolean}
    */
   _alwaysCallBuilder: function(attr) {
-    var attrMeta = this.attrs[attr];
+    var attrMeta = this._attrs[attr];
     return attrMeta.dependencies.indexOf(attr) >= 0;
   },
 
@@ -331,7 +354,7 @@ Factory.prototype = {
     var factory = (typeof name === 'string') ? Factory.factories[name] : name;
     // Copy the parent's constructor
     if (this.construct === undefined) { this.construct = factory.construct; }
-    Factory.util.extend(this.attrs, factory.attrs);
+    Factory.util.extend(this._attrs, factory._attrs);
     Factory.util.extend(this.opts, factory.opts);
     // Copy the parent's callbacks
     this.callbacks = factory.callbacks.slice();

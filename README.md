@@ -71,7 +71,7 @@ Factory.attributes('game'); // return just the attributes
 
 ### Programmatic Generation of Attributes
 
-You can specify options that are used to programatically generate the attributes:
+You can specify options that are used to programmatically generate the attributes:
 
 ```js
 var moment = require('moment');
@@ -106,6 +106,21 @@ Factory.build('matches', { seasonStart: '2016-03-12' }, { numMatches: 3 });
 In the example `numMatches` is defined as an `option`, not as an `attribute`. Therefore `numMatches` is not part of the output, it is only used to generate the `matches` array.
 
 In the same example `seasonStart` is defined as an `attribute`, therefore it appears in the output, and can also be used in the generator function that creates the `matches` array.
+
+### Batch Specification of Attributes
+
+The convenience function `attrs` simplifies the common case of specifying multiple attributes in a batch. Rewriting the `game` example from above:
+
+```js
+Factory.define('game')
+  .sequence('id')
+  .attrs({
+    is_over: false,
+    created_at: function() { return new Date(); }),
+    random_seed: function() { return Math.random(); })
+  })
+  .attr('players', ['players'], function(players) { /* etc. */ })
+```
 
 ### Post Build Callback
 
@@ -211,7 +226,11 @@ import { Factory } from 'rosie';
 
 export default new Factory()
   .sequence('id')
-  .attr('is_over', false);
+  .attrs({
+    is_over: false,
+    created_at: () => new Date(),
+    random_seed: () => Math.random()
+  })
   // etc
 
 // index.js
@@ -235,7 +254,7 @@ Once you have an instance returned from a `Factory.define` or a `new Factory()` 
 #### Factory.define
 
 * **Factory.define(``factory_name``)** - Defines a factory by name. Return an instance of a Factory that you call `.attr`, `.option`, `.sequence`, and `.after` on the result to define the properties of this factory.
-* **Factory.define(`factory_name`, `constructor`)** - Optionally pass a constuctor function, and the objects produced by `.build` will be passed through the `constructor` funtion.
+* **Factory.define(`factory_name`, `constructor`)** - Optionally pass a constuctor function, and the objects produced by `.build` will be passed through the `constructor` function.
 
 
 #### instance.attr:
@@ -245,6 +264,14 @@ Use this to define attributes of your objects
 * **instance.attr(`attribute_name`, `default_value`)** - `attribute_name` is required and is a string, `default_value` is the value to use by default for the attribute
 * **instance.attr(`attribute_name`, `generator_function`)** - `generator_function` is called to generate the value of the attribute
 * **instance.attr(`attribute_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the attribute. This list of `dependencies` will match the parameters that are passed to the `generator_function`
+
+#### instance.attrs:
+
+Use this as a convenience function instead of calling `instance.attr` multiple times
+
+* **instance.attrs(`{attribute_1: value_1, attribute_2: value_2, ...}`)** - `attribute_i` is a string, `value_i` is either an object or generator function.
+
+See `instance.attr` above for details. Note: there is no way to specify dependencies using this method, so if you need that, you should use `instance.attr` instead.
 
 #### instance.option:
 
