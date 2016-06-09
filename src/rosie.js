@@ -72,10 +72,11 @@ Factory.prototype = {
    * use #attr instead.
    *
    * For example:
+   *
    *   Factory.define('Person').attrs({
    *     name: 'Michael',
    *     age: function() { return Math.random() * 100; }
-   *   })
+   *   });
    *
    * @param {object} attributes
    * @return {Factory}
