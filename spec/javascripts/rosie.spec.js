@@ -39,9 +39,24 @@ describe('Factory', function() {
         });
 
         it('should pass options to the after callback', function(){
-          expect(Factory.build('thing').isAwesomeOption).toBe(true); 
+          expect(Factory.build('thing').isAwesomeOption).toBe(true);
         });
       });
+
+      describe('using attrs convenience function', function() {
+        beforeEach(function() {
+          Factory.define('thing', Thing).attrs({
+            name: 'Thing 1',
+            attr1: 'value1',
+            attr2: 'value2'
+          });
+        });
+
+        it('should set attributes', function() {
+          var thing = Factory.build('thing');
+          expect(thing).toEqual(jasmine.objectContaining({name: 'Thing 1', attr1: 'value1', attr2: 'value2'}));
+        });
+      })
     });
 
     describe('without a constructor', function() {
