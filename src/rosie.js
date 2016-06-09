@@ -82,7 +82,7 @@ Factory.prototype = {
    */
   attrs: function(attributes) {
     for (var attr in attributes) {
-      if (attributes.hasOwnProperty(attr)) {
+      if (Factory.util.hasOwnProp(attributes, attr)) {
         this.attr(attr, attributes[attr]);
       }
     }
