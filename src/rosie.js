@@ -77,12 +77,14 @@ Factory.prototype = {
    *     age: function() { return Math.random() * 100; }
    *   })
    *
-   * @param {object=} attributes
+   * @param {object} attributes
    * @return {Factory}
    */
   attrs: function(attributes) {
     for (var attr in attributes) {
-      this.attr(attr, attributes[attr]);
+      if (attributes.hasOwnProperty(attr)) {
+        this.attr(attr, attributes[attr]);
+      }
     }
     return this;
   },
