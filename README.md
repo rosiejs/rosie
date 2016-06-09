@@ -234,7 +234,7 @@ export default new Factory()
   // etc
 
 // index.js
-import Game from './factories/game');
+import Game from './factories/game';
 
 const game = Game.build({is_over: true});
 ```
