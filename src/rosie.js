@@ -319,7 +319,7 @@ Factory.prototype = {
    * @return {*}
    */
   build: function(attributes, options) {
-    var result = this.attributes(attributes, options);
+    var result = Factory.util.deepClone(this.attributes(attributes, options));
     var retval = null;
 
     if (this.construct) {
@@ -399,6 +399,17 @@ Factory.util = (function() {
         }
       }
       return dest;
+    },
+
+    /**
+     * Deep clones given object.
+     *
+     * @private
+     * @param {object} object
+     * @return {object}
+     */
+    deepClone: function(object) {
+      return JSON.parse(JSON.stringify(object));
     }
   };
 })();
