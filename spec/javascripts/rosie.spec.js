@@ -57,6 +57,32 @@ describe('Factory', function() {
           expect(thing).toEqual(jasmine.objectContaining({name: 'Thing 1', attr1: 'value1', attr2: 'value2'}));
         });
       })
+
+      describe('using methods convenience function', function() {
+        var spy1;
+        var spy2;
+
+        beforeEach(function() {
+          spy1 = jasmine.createSpy('method1');
+          spy2 = jasmine.createSpy('method2');
+
+          Factory.define('thing', Thing).methods({
+            name: 'Thing 1',
+            method1: spy1,
+            method2: spy2
+          });
+        });
+
+        it('should set methods', function() {
+          var thing = Factory.build('thing');
+          expect(thing).toEqual(jasmine.objectContaining({name: 'Thing 1', method1: jasmine.any(Function), method2: jasmine.any(Function)}));
+
+          thing.method1('foo');
+          thing.method2('bar');
+          expect(spy1).toHaveBeenCalledWith('foo');
+          expect(spy2).toHaveBeenCalledWith('bar');
+        });
+      })
     });
 
     describe('without a constructor', function() {
@@ -474,24 +500,6 @@ describe('Factory', function() {
         expect(factory.attributes({baz: 3})).toEqual({foo: 1, bar: 2, baz: 3});
       });
     });
-
-    // describe('methods', function() {
-    //   beforeEach(function() {
-    //     factory.attr('foo', 1).attr('bar', 2);
-    //   });
-    //
-    //   it('should allow overriding an attribute', function() {
-    //     expect(factory.attributes({bar: 3})).toEqual({foo: 1, bar: 3});
-    //   });
-    //
-    //   it('should allow overriding an attribute with a falsy value', function() {
-    //     expect(factory.attributes({bar: false})).toEqual({foo: 1, bar: false});
-    //   });
-    //
-    //   it('should allow adding new attributes', function() {
-    //     expect(factory.attributes({baz: 3})).toEqual({foo: 1, bar: 2, baz: 3});
-    //   });
-    // });
 
     describe('option', function() {
       beforeEach(function() {
