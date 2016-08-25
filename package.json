@@ -9,7 +9,8 @@
   ],
   "author": "Brandon Keepers <brandon@opensoul.org>",
   "contributors": [
-    "Brian Donovan <me@brian-donovan.com>"
+    "Brian Donovan <me@brian-donovan.com>",
+    "Victor Duarte <victor0110@msn.com>"
   ],
   "dependencies": {},
   "devDependencies": {

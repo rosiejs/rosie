@@ -110,6 +110,28 @@ Factory.prototype = {
   },
 
   /**
+   * Convenience function for defining a set of methods on the resulting object.
+   *
+   * For example:
+   *
+   *   Factory.define('Person').methods({
+   *     fullName: function() { return this.firstName + ' ' + this.lastName; },
+   *     age: function() { return Math.random() * 100; }
+   *   });
+   *
+   * @param {object} methods
+   * @return {Factory}
+   */
+  methods: function(methods) {
+    for (var name in methods) {
+      if (Factory.util.hasOwnProp(methods, name)) {
+        this.method(name, methods[name]);
+      }
+    }
+    return this;
+  },
+
+  /**
    * Define an option for this factory. Options are values that may inform
    * dynamic attribute behavior but are not included in objects built by the
    * factory. Like attributes, options may have dependencies. Unlike
