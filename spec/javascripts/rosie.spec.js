@@ -338,6 +338,47 @@ describe('Factory', function() {
       });
     });
 
+    describe('method', function() {
+      it('should add given value to attributes', function() {
+        var myMethod = jasmine.createSpy('foo');
+        factory.method('foo', myMethod);
+        factory.attributes().foo('bar');
+        expect(myMethod).toHaveBeenCalledWith('bar');
+      });
+
+      it('should make function invokable', function() {
+        var calls = 0;
+        factory.method('dynamic', function() { return ++calls; });
+        expect(factory.attributes().dynamic()).toEqual(1);
+        expect(factory.attributes().dynamic()).toEqual(2);
+      });
+
+      it('should return the factory', function() {
+        function myMethod() {}
+        expect(factory.method('foo', myMethod)).toBe(factory);
+      });
+
+      it('should allow accessing attributes', function() {
+        factory
+          .method('fullName', function() {
+            return this.firstName + ' ' + this.lastName;
+          })
+          .attr('firstName', 'Default')
+          .attr('lastName', 'Name');
+
+        expect(factory.attributes().fullName()).toEqual('Default Name');
+
+        expect(factory.attributes({ firstName: 'Michael', lastName: 'Bluth' }).fullName()).toEqual('Michael Bluth');
+
+        expect(factory.attributes({ fullName: 'Buster Bluth' }))
+          .toEqual({
+            fullName: 'Buster Bluth',
+            firstName: 'Default',
+            lastName: 'Name'
+          });
+      });
+    });
+
     describe('sequence', function() {
       it('should return the factory', function() {
         expect(factory.sequence('id')).toBe(factory);
@@ -433,6 +474,24 @@ describe('Factory', function() {
         expect(factory.attributes({baz: 3})).toEqual({foo: 1, bar: 2, baz: 3});
       });
     });
+
+    // describe('methods', function() {
+    //   beforeEach(function() {
+    //     factory.attr('foo', 1).attr('bar', 2);
+    //   });
+    //
+    //   it('should allow overriding an attribute', function() {
+    //     expect(factory.attributes({bar: 3})).toEqual({foo: 1, bar: 3});
+    //   });
+    //
+    //   it('should allow overriding an attribute with a falsy value', function() {
+    //     expect(factory.attributes({bar: false})).toEqual({foo: 1, bar: false});
+    //   });
+    //
+    //   it('should allow adding new attributes', function() {
+    //     expect(factory.attributes({baz: 3})).toEqual({foo: 1, bar: 2, baz: 3});
+    //   });
+    // });
 
     describe('option', function() {
       beforeEach(function() {
