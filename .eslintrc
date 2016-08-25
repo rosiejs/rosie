@@ -34,6 +34,6 @@
     "no-process-exit": 2,
     "camelcase": 2,
     "no-console": 2,
-    "space-after-keywords": 2
+    "keyword-spacing": 2
   }
 }
