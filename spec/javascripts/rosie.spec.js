@@ -57,6 +57,32 @@ describe('Factory', function() {
           expect(thing).toEqual(jasmine.objectContaining({name: 'Thing 1', attr1: 'value1', attr2: 'value2'}));
         });
       })
+
+      describe('using methods convenience function', function() {
+        var spy1;
+        var spy2;
+
+        beforeEach(function() {
+          spy1 = jasmine.createSpy('method1');
+          spy2 = jasmine.createSpy('method2');
+
+          Factory.define('thing', Thing).methods({
+            name: 'Thing 1',
+            method1: spy1,
+            method2: spy2
+          });
+        });
+
+        it('should set methods', function() {
+          var thing = Factory.build('thing');
+          expect(thing).toEqual(jasmine.objectContaining({name: 'Thing 1', method1: jasmine.any(Function), method2: jasmine.any(Function)}));
+
+          thing.method1('foo');
+          thing.method2('bar');
+          expect(spy1).toHaveBeenCalledWith('foo');
+          expect(spy2).toHaveBeenCalledWith('bar');
+        });
+      })
     });
 
     describe('without a constructor', function() {
@@ -335,6 +361,47 @@ describe('Factory', function() {
         expect(factory.attributes({ person: { age: 55 }})).toEqual({
           person: { name: 'Bob', age: 55 }
         });
+      });
+    });
+
+    describe('method', function() {
+      it('should add given value to attributes', function() {
+        var myMethod = jasmine.createSpy('foo');
+        factory.method('foo', myMethod);
+        factory.attributes().foo('bar');
+        expect(myMethod).toHaveBeenCalledWith('bar');
+      });
+
+      it('should make function invokable', function() {
+        var calls = 0;
+        factory.method('dynamic', function() { return ++calls; });
+        expect(factory.attributes().dynamic()).toEqual(1);
+        expect(factory.attributes().dynamic()).toEqual(2);
+      });
+
+      it('should return the factory', function() {
+        function myMethod() {}
+        expect(factory.method('foo', myMethod)).toBe(factory);
+      });
+
+      it('should allow accessing attributes', function() {
+        factory
+          .method('fullName', function() {
+            return this.firstName + ' ' + this.lastName;
+          })
+          .attr('firstName', 'Default')
+          .attr('lastName', 'Name');
+
+        expect(factory.attributes().fullName()).toEqual('Default Name');
+
+        expect(factory.attributes({ firstName: 'Michael', lastName: 'Bluth' }).fullName()).toEqual('Michael Bluth');
+
+        expect(factory.attributes({ fullName: 'Buster Bluth' }))
+          .toEqual({
+            fullName: 'Buster Bluth',
+            firstName: 'Default',
+            lastName: 'Name'
+          });
       });
     });
 
