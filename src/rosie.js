@@ -67,6 +67,25 @@ Factory.prototype = {
   },
 
   /**
+   * Define a method on this factory. For example:
+   *
+   *   // no default value for age
+   *   Factory.define('Person').method('fullName', function() {
+   *     return this.firstName + ' ' + this.lastName;
+   *   })
+   *
+   * @param {string} name
+   * @param {Function} fn
+   * @return {Factory}
+   */
+  method: function(name, fn) {
+    var builder = function() { return fn; };
+
+    this._attrs[name] = { dependencies: [], builder: builder };
+    return this;
+  },
+
+  /**
    * Convenience function for defining a set of attributes on this object as
    * builder functions or static values. If you need to specify dependencies,
    * use #attr instead.
@@ -238,7 +257,8 @@ Factory.prototype = {
         return this._attrValue(dep, attributes, options, stack.concat([dep]));
       }
     });
-    attributes[attr] = value;
+
+    attributes[attr] = typeof value === 'function' ? value.bind(attributes) : value;
     return value;
   },
 
