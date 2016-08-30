@@ -77,6 +77,17 @@ describe('Factory', function() {
           .toThrowError(Error, 'The "nothing" factory is not defined.');
       });
     });
+
+    describe('changing deep attributes of a built object', function() {
+      it('should not change the factory definition', function() {
+        Factory.define('thing').attr('some', {'other': 'Thing 1'});
+        var newThing = Factory.build('thing');
+
+        newThing.some.other = 'Thing 5';
+
+        expect(Factory.build('thing')).toEqual({some: {other: 'Thing 1'}});
+      });
+    });
   });
 
   describe('buildList', function () {
