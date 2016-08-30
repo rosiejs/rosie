@@ -1,5 +1,14 @@
 language: node_js
 node_js:
-- '0.12'
-- '0.10'
+- '6'
+- '5'
+- '4'
 sudo: false
+
+before_script:
+  # Generate a virtual framebuffer X server to collect Electron windows
+  - export DISPLAY=:99.0
+  - sh -e /etc/init.d/xvfb start
+
+  # Wait for Xvfb to start
+  - sleep 3
