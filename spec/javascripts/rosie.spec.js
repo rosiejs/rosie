@@ -27,19 +27,51 @@ describe('Factory', function() {
       });
 
       describe('running callbacks', function() {
-        beforeEach(function() {
-          Factory.define('thing', Thing).option('isAwesome', true).after(function(obj, options) {
-            obj.afterCalled = true;
-            obj.isAwesomeOption = options.isAwesome;
+        describe('callbacks do not return value', function() {
+          beforeEach(function() {
+            Factory.define('thing', Thing).option('isAwesome', true).after(function(obj, options) {
+              obj.afterCalled = true;
+              obj.isAwesomeOption = options.isAwesome;
+            });
+          });
+
+          it('should run callbacks', function() {
+            expect(Factory.build('thing').afterCalled).toBe(true);
+          });
+
+          it('should pass options to the after callback', function(){
+            expect(Factory.build('thing').isAwesomeOption).toBe(true);
           });
         });
 
-        it('should run callbacks', function() {
-          expect(Factory.build('thing').afterCalled).toBe(true);
-        });
+        describe('callbacks return new object', function() {
+          beforeEach(function() {
+            Factory.define('thing', Thing).option('isAwesome', true).attr('name', 'Thing 1').after(function(obj, options) {
+              return {
+                afterCalled: true,
+                isAwesomeOption: options.isAwesome,
+                wrapped: obj
+              };
+            });
+          });
 
-        it('should pass options to the after callback', function(){
-          expect(Factory.build('thing').isAwesomeOption).toBe(true);
+          it('should run callbacks', function() {
+            expect(Factory.build('thing').afterCalled).toBe(true);
+          });
+
+          it('should pass options to the after callback', function(){
+            expect(Factory.build('thing').isAwesomeOption).toBe(true);
+          });
+
+          it('should return object from callback as the final result', function() {
+            expect(Factory.build('thing')).toEqual({
+              afterCalled: true,
+              isAwesomeOption: true,
+              wrapped: new Thing({
+                name: 'Thing 1'
+              })
+            });
+          });
         });
       });
 

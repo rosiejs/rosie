@@ -330,7 +330,8 @@ Factory.prototype = {
     }
 
     for (var i = 0; i < this.callbacks.length; i++) {
-      this.callbacks[i](retval, this.options(options));
+      var callbackResult = this.callbacks[i](retval, this.options(options));
+      retval = callbackResult || retval;
     }
     return retval;
   },

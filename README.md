@@ -146,6 +146,8 @@ Factory.build('coach', {}, {buildPlayer: true});
 
 Multiple callbacks can be registered, and they will be executed in the order they are registered. The callbacks can manipulate the built object before it is returned to the callee.
 
+If the callback doesn't return anything, rosie will return build object as final result. If the callback returns a value, rosie will use that as final result instead.
+
 ### Associate a Factory with an existing Class
 
 This is an advanced use case that you can probably happily ignore, but store this away in case you need it.
