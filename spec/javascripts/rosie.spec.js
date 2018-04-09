@@ -59,7 +59,7 @@ describe('Factory', function() {
             expect(Factory.build('thing').afterCalled).toBe(true);
           });
 
-          it('should pass options to the after callback', function(){
+          it('should pass options to the after callback', function() {
             expect(Factory.build('thing').isAwesomeOption).toBe(true);
           });
 
@@ -111,7 +111,7 @@ describe('Factory', function() {
     });
   });
 
-  describe('buildList', function () {
+  describe('buildList', function() {
     beforeEach(function() {
       Factory.define('thing').attr('name', 'Thing 1');
     });
