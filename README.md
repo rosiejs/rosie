@@ -311,13 +311,13 @@ Identical to `.build` except it returns an array of built objects. `size` is req
 
 ## Contributing
 
-0. Fork it
-0. Create your feature branch (`git checkout -b my-new-feature`)
-0. Install the test dependencies (`script/bootstrap` - requires NodeJS and npm)
-0. Make your changes and make sure the tests pass (`npm test`)
-0. Commit your changes (`git commit -am 'Added some feature'`)
-0. Push to the branch (`git push origin my-new-feature`)
-0. Create new Pull Request
+1.  Fork it
+1.  Create your feature branch (`git checkout -b my-new-feature`)
+1.  Install the test dependencies (`yarn install` - requires NodeJS and yarn)
+1.  Make your changes and make sure the tests pass (`yarn test`)
+1.  Commit your changes (`git commit -am 'Added some feature'`)
+1.  Push to the branch (`git push origin my-new-feature`)
+1.  Create new Pull Request
 
 ## Credits
 
