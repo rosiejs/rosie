@@ -25,7 +25,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/bkeepers/rosie.git"
+    "url": "git://github.com/rosiejs/rosie.git"
   },
   "main": "src/rosie.js",
   "scripts": {
