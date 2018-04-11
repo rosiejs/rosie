@@ -12,8 +12,8 @@ To use Rosie you first define a _factory_. The _factory_ is defined in terms of 
 
 There are two phases of use:
 
-1. Factory definition
-2. Object building
+1.  Factory definition
+2.  Object building
 
 **Factory Definition:** Define your factory, giving it a name and optionally a constructor function (`game` in this example):
 
@@ -49,7 +49,7 @@ Factory.define('disabled-player').extend('player').attr('state', 'disabled');
 **Object Building:** Build an object, passing in attributes that you want to override:
 
 ```js
-var game = Factory.build('game', {is_over:true});
+var game = Factory.build('game', { is_over: true });
 // Built object (note scores are random):
 //{
 //    id:           1,
@@ -79,11 +79,16 @@ var moment = require('moment');
 Factory.define('matches')
   .attr('seasonStart', '2016-01-01')
   .option('numMatches', 2)
-  .attr('matches', ['numMatches', 'seasonStart'], function(numMatches, seasonStart) {
+  .attr('matches', ['numMatches', 'seasonStart'], function(
+    numMatches,
+    seasonStart
+  ) {
     var matches = [];
     for (var i = 1; i <= numMatches; i++) {
       matches.push({
-        matchDate: moment(seasonStart).add(i, 'week').format('YYYY-MM-DD'),
+        matchDate: moment(seasonStart)
+          .add(i, 'week')
+          .format('YYYY-MM-DD'),
         homeScore: Math.floor(Math.random() * 5),
         awayScore: Math.floor(Math.random() * 5)
       });
@@ -132,7 +137,7 @@ Factory.define('coach')
   .sequence('id')
   .attr('players', ['id', 'buildPlayer'], function(id, buildPlayer) {
     if (buildPlayer) {
-      return [Factory.build('player', {coach_id: id})];
+      return [Factory.build('player', { coach_id: id })];
     }
   })
   .after(function(coach, options) {
@@ -141,7 +146,7 @@ Factory.define('coach')
     }
   });
 
-Factory.build('coach', {}, {buildPlayer: true});
+Factory.build('coach', {}, { buildPlayer: true });
 ```
 
 Multiple callbacks can be registered, and they will be executed in the order they are registered. The callbacks can manipulate the built object before it is returned to the callee.
@@ -168,8 +173,7 @@ SimpleClass.prototype = {
   }
 };
 
-testFactory = Factory.define('test', SimpleClass)
-  .attr('some_var', 4);
+testFactory = Factory.define('test', SimpleClass).attr('some_var', 4);
 
 testInstance = testFactory.build({ stuff: 2 });
 console.log(JSON.stringify(testInstance, {}, 2));
@@ -185,7 +189,6 @@ console.log(JSON.stringify(testInstance, {}, 2));
 console.log(testInstance.isMoopsCorrect());
 // Output:
 // correct
-
 ```
 
 Mind. Blown.
@@ -204,10 +207,8 @@ You might also choose to use unregistered factories, as it fits better with node
 // factories/game.js
 var Factory = require('rosie').Factory;
 
-module.exports = new Factory()
-  .sequence('id')
-  .attr('is_over', false);
-  // etc
+module.exports = new Factory().sequence('id').attr('is_over', false);
+// etc
 ```
 
 To use the unregistered `Game` factory defined above:
@@ -215,7 +216,7 @@ To use the unregistered `Game` factory defined above:
 ```js
 var Game = require('./factories/game');
 
-var game = Game.build({is_over: true});
+var game = Game.build({ is_over: true });
 ```
 
 ## Usage in ES6
@@ -226,19 +227,17 @@ Unregistered factories are even more natural in ES6:
 // factories/game.js
 import { Factory } from 'rosie';
 
-export default new Factory()
-  .sequence('id')
-  .attrs({
-    is_over: false,
-    created_at: () => new Date(),
-    random_seed: () => Math.random()
-  })
-  // etc
+export default new Factory().sequence('id').attrs({
+  is_over: false,
+  created_at: () => new Date(),
+  random_seed: () => Math.random()
+});
+// etc
 
 // index.js
 import Game from './factories/game';
 
-const game = Game.build({is_over: true});
+const game = Game.build({ is_over: true });
 ```
 
 A tool like [babel](https://babeljs.io) is currently required to use this syntax.
@@ -255,9 +254,8 @@ Once you have an instance returned from a `Factory.define` or a `new Factory()` 
 
 #### Factory.define
 
-* **Factory.define(``factory_name``)** - Defines a factory by name. Return an instance of a Factory that you call `.attr`, `.option`, `.sequence`, and `.after` on the result to define the properties of this factory.
+* **Factory.define(`factory_name`)** - Defines a factory by name. Return an instance of a Factory that you call `.attr`, `.option`, `.sequence`, and `.after` on the result to define the properties of this factory.
 * **Factory.define(`factory_name`, `constructor`)** - Optionally pass a constuctor function, and the objects produced by `.build` will be passed through the `constructor` function.
-
 
 #### instance.attr:
 

@@ -14,7 +14,10 @@
   "dependencies": {},
   "devDependencies": {
     "eslint": "^3.4.0",
-    "jest": "^22.4.3"
+    "eslint-config-prettier": "^2.9.0",
+    "jest": "^22.4.3",
+    "prettier": "^1.11.1",
+    "prettier-check": "^2.0.0"
   },
   "engines": {
     "node": "*"
@@ -25,7 +28,7 @@
   },
   "main": "src/rosie.js",
   "scripts": {
-    "pretest": "eslint src",
+    "pretest": "eslint src && prettier-check src/rosie.js src/__tests__/rosie.test.js README.md",
     "test": "jest",
     "watch": "jest --watch"
   },
