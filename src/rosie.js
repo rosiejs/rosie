@@ -179,21 +179,6 @@ Factory.prototype = {
   },
 
   /**
-   * Sets the constructor for this factory to be another factory. This can be
-   * used to create more specific sub-types of factories.
-   *
-   * @param {Factory} parentFactory
-   * @return {Factory}
-   */
-  inherits: function(parentFactory) {
-    console.warn('Factory#inherits is deprecated and will be removed in rosie v2. Please use Factory#extends instead.'); // eslint-disable-line no-console
-    this.construct = function(attributes, options) {
-      return Factory.build(parentFactory, attributes, options);
-    };
-    return this;
-  },
-
-  /**
    * Builds a plain object containing values for each of the declared
    * attributes. The result of this is the same as the result when using #build
    * when there is no constructor registered.
@@ -465,9 +450,13 @@ Factory.attributes = function(name, attributes, options) {
 };
 
 if (typeof exports === 'object' && typeof module !== 'undefined') {
+  /* eslint-env commonjs */
   exports.Factory = Factory;
+  /* eslint-env commonjs:false */
 } else if (typeof define === 'function' && define.amd) {
+  /* eslint-env amd */
   define([], function() { return {Factory: Factory}; });
+  /* eslint-env amd:false */
 } else if (this) {
   this.Factory = Factory;
 }
