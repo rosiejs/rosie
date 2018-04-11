@@ -1,3 +1,5 @@
+var Factory = require('../rosie').Factory;
+
 describe('Factory', function() {
   afterEach(function() {
     Factory.factories = {};
@@ -23,7 +25,7 @@ describe('Factory', function() {
       });
 
       it('should set attributes', function() {
-        expect(Factory.build('thing')).toEqual(jasmine.objectContaining({name: 'Thing 1', afterCalled: true}));
+        expect(Factory.build('thing')).toEqual(expect.objectContaining({name: 'Thing 1', afterCalled: true}));
       });
 
       describe('running callbacks', function() {
@@ -86,7 +88,7 @@ describe('Factory', function() {
 
         it('should set attributes', function() {
           var thing = Factory.build('thing');
-          expect(thing).toEqual(jasmine.objectContaining({name: 'Thing 1', attr1: 'value1', attr2: 'value2'}));
+          expect(thing).toEqual(expect.objectContaining({name: 'Thing 1', attr1: 'value1', attr2: 'value2'}));
         });
       })
     });
@@ -236,7 +238,7 @@ describe('Factory', function() {
       });
 
       it('should extend attributes', function() {
-        expect(Factory.build('anotherThing')).toEqual(jasmine.objectContaining({name: 'Thing 1', title: 'Title 1', afterCalled: true}));
+        expect(Factory.build('anotherThing')).toEqual(expect.objectContaining({name: 'Thing 1', title: 'Title 1', afterCalled: true}));
       });
 
       it('should extend callbacks', function() {
@@ -267,7 +269,7 @@ describe('Factory', function() {
       });
 
       it('should extend attributes', function() {
-        expect(ChildFactory.build()).toEqual(jasmine.objectContaining({name: 'Parent', title: 'Child', afterCalled: true}));
+        expect(ChildFactory.build()).toEqual(expect.objectContaining({name: 'Parent', title: 'Child', afterCalled: true}));
       });
 
       it('should extend callbacks', function() {

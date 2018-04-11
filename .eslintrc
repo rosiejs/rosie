@@ -1,8 +1,5 @@
 {
-  "env": {
-    "node": true,
-    "mocha": true
-  },
+  "extends": "eslint:recommended",
   "rules": {
     "strict": 0,
     "quotes": [
