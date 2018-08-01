@@ -624,7 +624,7 @@ describe('Factory', function() {
     });
 
     it('should persist from one fixture call to another via factory instance', function() {
-      var fixtureFactory = Factory.define(name).sequence('some sequence')
+      var fixtureFactory = Factory.define(name).sequence('some sequence');
       expect(fixtureFactory.fixture()).toEqual(fixtureFactory.fixture());
     });
 
@@ -633,7 +633,7 @@ describe('Factory', function() {
     });
 
     it('should reset the fixture when the reset method is called via factory instance', function() {
-      var fixtureFactory = Factory.define(name).sequence('id')
+      var fixtureFactory = Factory.define(name).sequence('id');
 
       var one = fixtureFactory.fixture();
       fixtureFactory.reset();
@@ -649,22 +649,22 @@ describe('Factory', function() {
     });
 
     it('should reset all fixtures', function() {
-      var aFactory = Factory.define('a').sequence('id')
-      var bFactory = Factory.define('b').sequence('id')
+      var aFactory = Factory.define('a').sequence('id');
+      var bFactory = Factory.define('b').sequence('id');
 
-      var oldA = aFactory.fixture('a')
-      var oldB = bFactory.fixture('b')
+      var oldA = aFactory.fixture('a');
+      var oldB = bFactory.fixture('b');
 
-      Factory.resetAll()
+      Factory.resetAll();
 
-      expect(aFactory.fixture('a')).not.toEqual(oldA)
-      expect(bFactory.fixture('b')).not.toEqual(oldB)
-    })
+      expect(aFactory.fixture('a')).not.toEqual(oldA);
+      expect(bFactory.fixture('b')).not.toEqual(oldB);
+    });
 
     it('should throw if trying to use the fixture feature on an unnamed factory', function() {
-      expect(function () {
-        Factory.define().fixture()
-      }).toThrow('Fixtures can only be used with named factories.')
+      expect(function() {
+        Factory.define().fixture();
+      }).toThrow('Fixtures can only be used with named factories.');
     });
   });
 });
