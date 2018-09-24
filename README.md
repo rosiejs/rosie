@@ -219,7 +219,7 @@ var Game = require('./factories/game');
 var game = Game.build({ is_over: true });
 ```
 
-## Usage in ES6
+## Unregistered Factories
 
 Unregistered factories are even more natural in ES6:
 
@@ -241,6 +241,18 @@ const game = Game.build({ is_over: true });
 ```
 
 A tool like [babel](https://babeljs.io) is currently required to use this syntax.
+
+You can also extend an existing unregistered factory:
+
+```js
+// factories/scored-game.js
+import { Factory } from 'rosie';
+import Game from './game';
+
+export default new Factory().extend(Game).attrs({
+  score: 10
+});
+```
 
 ## Rosie API
 
