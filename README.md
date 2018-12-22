@@ -35,7 +35,7 @@ Factory.define('game')
 
 Factory.define('player')
   .sequence('id')
-  .sequence('name', function(i) { return 'player' + i; });
+  .sequence('name', function(i) { return 'player' + i; })
 
   // Define `position` to depend on `id`.
   .attr('position', ['id'], function(id) {
