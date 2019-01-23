@@ -91,7 +91,10 @@ describe('Factory', function() {
           Factory.define('thing', Thing).attrs({
             name: 'Thing 1',
             attr1: 'value1',
-            attr2: 'value2'
+            attr2: 'value2',
+            attr3: function(attr1, attr2) {
+              return attr1 + attr2;
+            }
           });
         });
 
@@ -101,7 +104,8 @@ describe('Factory', function() {
             expect.objectContaining({
               name: 'Thing 1',
               attr1: 'value1',
-              attr2: 'value2'
+              attr2: 'value2',
+              attr3: 'value1value2'
             })
           );
         });
@@ -612,6 +616,36 @@ describe('Factory', function() {
           'MADELINE'
         );
         expect(useCapsLockValues).toEqual([false, true]);
+      });
+    });
+  });
+
+  describe('util', function() {
+    describe('parseArgs', function() {
+      var testCases = {
+        'function (a,b,c) {}': ['a', 'b', 'c'],
+        'function () {}': [],
+        'function named(a, b, c) {}': ['a', 'b', 'c'],
+        'function (a /* = 1 */, b /* = true */) {}': ['a', 'b'],
+        'function fprintf(handle, fmt /*, ...*/) {}': ['handle', 'fmt'],
+        'function( a, b = 1, c ) {}': ['a', 'b', 'c'],
+        'function (a=4*(5/3), b) {}': ['a', 'b'],
+        'function (a, // single-line comment xjunk\nb) {}': ['a', 'b'],
+        'function (a /* function() yes */, \n /* no, */b)/* omg! */ {}': [
+          'a',
+          'b'
+        ],
+        'function ( A, b \n,c ,d \n ) \n {}': ['A', 'b', 'c', 'd'],
+        'function (a,b) {}': ['a', 'b'],
+        null: ['null'],
+        'function Object() {}': []
+      };
+
+      Object.keys(testCases).forEach(function(fn) {
+        it('should parseArgs from "' + fn + '"', function() {
+          var result = testCases[fn];
+          expect(Factory.util.parseArgs(fn)).toEqual(result);
+        });
       });
     });
   });

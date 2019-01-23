@@ -122,8 +122,9 @@ Factory.define('game')
   .sequence('id')
   .attrs({
     is_over: false,
-    created_at: () => new Date(),
-    random_seed: () => Math.random()
+    created_at: () => new Date().valueOf(),
+    random_seed: () => Math.random(),
+    updated_at: (created_at, random_seed) => created_at + random_seed
   })
   .attr('players', ['players'], players => {
     /* etc. */
@@ -267,7 +268,7 @@ Use this as a convenience function instead of calling `instance.attr` multiple t
 
 - **instance.attrs(`{attribute_1: value_1, attribute_2: value_2, ...}`)** - `attribute_i` is a string, `value_i` is either an object or generator function.
 
-See `instance.attr` above for details. Note: there is no way to specify dependencies using this method, so if you need that, you should use `instance.attr` instead.
+See `instance.attr` above for details.
 
 #### instance.option:
 

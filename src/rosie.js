@@ -73,14 +73,14 @@ Factory.prototype = {
 
   /**
    * Convenience function for defining a set of attributes on this object as
-   * builder functions or static values. If you need to specify dependencies,
-   * use #attr instead.
+   * builder functions or static values.
    *
    * For example:
    *
    *   Factory.define('Person').attrs({
    *     name: 'Michael',
-   *     age: function() { return Math.random() * 100; }
+   *     age: function() { return Math.random() * 100; },
+   *     username: function(name, age) { return name + age; }
    *   });
    *
    * @param {object} attributes
@@ -89,7 +89,12 @@ Factory.prototype = {
   attrs: function(attributes) {
     for (var attr in attributes) {
       if (Factory.util.hasOwnProp(attributes, attr)) {
-        this.attr(attr, attributes[attr]);
+        var generator = attributes[attr];
+        var dependencies =
+          typeof generator === 'function'
+            ? Factory.util.parseArgs(generator)
+            : [];
+        this.attr(attr, dependencies, generator);
       }
     }
     return this;
@@ -410,6 +415,20 @@ Factory.util = (function() {
         }
       }
       return dest;
+    },
+
+    parseArgs: function(fn) {
+      // courtesy of humbletim: https://stackoverflow.com/a/31194949
+      return fn
+        .toString()
+        .replace(/[/][/].*$/gm, '') // strip single-line comments
+        .replace(/\s+/g, '') // strip white space
+        .replace(/[/][*][^/*]*[*][/]/g, '') // strip multi-line comments
+        .split('){', 1)[0]
+        .replace(/^[^(]*[(]/, '') // extract the parameters
+        .replace(/=[^,]+/g, '') // strip any ES6 defaults
+        .split(',')
+        .filter(Boolean); // split & filter [""]
     }
   };
 })();
