@@ -275,7 +275,7 @@ Use this to define options. Options do not appear in the generated object, but t
 
 - **instance.option(`option_name`, `default_value`)** - `option_name` is required and is a string, `default_value` is the value to use by default for the option
 - **instance.option(`option_name`, `generator_function`)** - `generator_function` is called to generate the value of the option
-- **instance.option(`option_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the option. This list of `dependencies` will match the parameters that are passed to the `generator_function`
+- **instance.option(`option_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an option that is required by the `generator_function` to generate the value of the option. This list of `dependencies` will match the parameters that are passed to the `generator_function`
 
 #### instance.sequence:
 
