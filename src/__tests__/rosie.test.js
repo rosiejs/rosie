@@ -613,6 +613,28 @@ describe('Factory', function() {
         );
         expect(useCapsLockValues).toEqual([false, true]);
       });
+
+      it('should support attribute and sequence dependencies', function() {
+        factory.sequence('Id');
+        factory.option('name', ['Id'], function(id) {
+          return 'Object #' + id;
+        });
+        factory.attr('Meta', ['name'], function(name) {
+          return { Name: name };
+        });
+        expect(factory.build()).toEqual({
+          Id: 1,
+          Meta: {
+            Name: 'Object #1'
+          }
+        });
+        expect(factory.build({ Name: 'Custom Name' })).toEqual({
+          Id: 2,
+          Meta: {
+            Name: 'Custom Name'
+          }
+        });
+      });
     });
   });
 });
