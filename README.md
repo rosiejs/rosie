@@ -283,7 +283,7 @@ Use this to define an auto incrementing sequence field in your object
 
 - **instance.sequence(`sequence_name`)** - define a sequence called `sequence_name`, set the start value to 1
 - **instance.sequence(`sequence_name`, `generator_function`)** - `generator_function` is called to generate the value of the sequence. When the `generator_function` is called the pre-incremented sequence number will be passed as the first parameter, followed by any dependencies that have been specified.
-- **instance.sequence(`sequence_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the option. The value of each specified dependency will be passed ar parameters 2..N to the `generator_function`, noting again that the pre-incremented sequence number is passed as the first parameter.
+- **instance.sequence(`sequence_name`, `dependencies`, `generator_function`)** - `dependencies` is an array of strings, each string is the name of an attribute or option that is required by the `generator_function` to generate the value of the option. The value of each specified dependency will be passed as parameters 2..N to the `generator_function`, noting again that the pre-incremented sequence number is passed as the first parameter.
 
 #### instance.after:
 
