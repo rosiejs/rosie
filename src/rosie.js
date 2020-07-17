@@ -6,8 +6,9 @@
  * @param {Function=} constructor
  * @class
  */
-var Factory = function(constructor) {
+var Factory = function(constructor, name) {
   this.construct = constructor;
+  this.name = name;
   this._attrs = {};
   this.opts = {};
   this.sequences = {};
@@ -371,6 +372,34 @@ Factory.prototype = {
     // Copy the parent's callbacks
     this.callbacks = factory.callbacks.slice();
     return this;
+  },
+
+  /**
+   * Either returns a cached object, or caches and returns a new object
+   *
+   * @param {object=} attributes
+   * @param {object=} options
+   * @return {*}
+   */
+  fixture: function(attributes, options) {
+    if (!this.name) {
+      throw new Error('Fixtures can only be used with named factories.');
+    }
+
+    if (!Factory.fixtures[this.name]) {
+      Factory.fixtures[this.name] = this.build(attributes, options);
+    }
+
+    return Factory.fixtures[this.name];
+  },
+
+  /**
+   * removes a cached fixture from memory
+   *
+   * @param {!string} name
+   */
+  reset: function() {
+    delete Factory.fixtures[this.name];
   }
 };
 
@@ -415,6 +444,7 @@ Factory.util = (function() {
 })();
 
 Factory.factories = {};
+Factory.fixtures = {};
 
 /**
  * Defines a factory by name and constructor function. Call #attr and #option
@@ -425,7 +455,7 @@ Factory.factories = {};
  * @return {Factory}
  */
 Factory.define = function(name, constructor) {
-  var factory = new Factory(constructor);
+  var factory = new Factory(constructor, name);
   this.factories[name] = factory;
   return factory;
 };
@@ -472,6 +502,43 @@ Factory.buildList = function(name, size, attributes, options) {
  */
 Factory.attributes = function(name, attributes, options) {
   return this.factories[name].attributes(attributes, options);
+};
+
+/**
+ * Locates a factory by name and calls #fixture on it.
+ *
+ * @param {!string} name
+ * @param {object=} attributes
+ * @param {object=} options
+ * @return {*}
+ */
+Factory.fixture = function(name, attributes, options) {
+  if (!this.factories[name]) {
+    throw new Error('The "' + name + '" factory is not defined.');
+  }
+  return this.factories[name].fixture(attributes, options);
+};
+
+/**
+ * Locates an arbitrary amount of factories and calls #reset on it.
+ *
+ * @param {!string|!string[]} names
+ */
+Factory.reset = function(names) {
+  if (!Array.isArray(names)) {
+    names = [names];
+  }
+
+  for (var i in names) {
+    this.factories[names[i]].reset();
+  }
+};
+
+/**
+ * calls #reset on all known factories.
+ */
+Factory.resetAll = function() {
+  Factory.reset(Object.keys(Factory.fixtures));
 };
 
 if (typeof exports === 'object' && typeof module !== 'undefined') {
