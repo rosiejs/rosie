@@ -1,298 +1,294 @@
-var Factory = require('../rosie').Factory;
+const { Factory } = require('../rosie');
 
-describe('Factory', function() {
-  afterEach(function() {
+describe('Factory', () => {
+  afterEach(() => {
     Factory.factories = {};
   });
 
-  describe('build', function() {
-    describe('with a normal constructor', function() {
-      var Thing = function(attrs) {
-        for (var attr in attrs) {
-          this[attr] = attrs[attr];
+  describe('build', () => {
+    describe('with a normal constructor', () => {
+      class Thing {
+        constructor(attrs) {
+          for (var attr in attrs) {
+            this[attr] = attrs[attr];
+          }
         }
-      };
+      }
 
-      beforeEach(function() {
+      beforeEach(() => {
         Factory.define('thing', Thing)
           .attr('name', 'Thing 1')
-          .after(function(obj) {
+          .after((obj) => {
             obj.afterCalled = true;
           });
       });
 
-      it('should return a new instance of that constructor', function() {
+      it('should return a new instance of that constructor', () => {
         expect(Factory.build('thing') instanceof Thing).toBe(true);
         expect(Factory.build('thing').constructor).toBe(Thing);
       });
 
-      it('should set attributes', function() {
+      it('should set attributes', () => {
         expect(Factory.build('thing')).toEqual(
           expect.objectContaining({ name: 'Thing 1', afterCalled: true })
         );
       });
 
-      describe('running callbacks', function() {
-        describe('callbacks do not return value', function() {
-          beforeEach(function() {
+      describe('running callbacks', () => {
+        describe('callbacks do not return value', () => {
+          beforeEach(() => {
             Factory.define('thing', Thing)
               .option('isAwesome', true)
-              .after(function(obj, options) {
+              .after((obj, options) => {
                 obj.afterCalled = true;
                 obj.isAwesomeOption = options.isAwesome;
               });
           });
 
-          it('should run callbacks', function() {
+          it('should run callbacks', () => {
             expect(Factory.build('thing').afterCalled).toBe(true);
           });
 
-          it('should pass options to the after callback', function() {
+          it('should pass options to the after callback', () => {
             expect(Factory.build('thing').isAwesomeOption).toBe(true);
           });
         });
 
-        describe('callbacks return new object', function() {
-          beforeEach(function() {
+        describe('callbacks return new object', () => {
+          beforeEach(() => {
             Factory.define('thing', Thing)
               .option('isAwesome', true)
               .attr('name', 'Thing 1')
-              .after(function(obj, options) {
-                return {
-                  afterCalled: true,
-                  isAwesomeOption: options.isAwesome,
-                  wrapped: obj
-                };
-              });
+              .after((obj, options) => ({
+                afterCalled: true,
+                isAwesomeOption: options.isAwesome,
+                wrapped: obj,
+              }));
           });
 
-          it('should run callbacks', function() {
+          it('should run callbacks', () => {
             expect(Factory.build('thing').afterCalled).toBe(true);
           });
 
-          it('should pass options to the after callback', function() {
+          it('should pass options to the after callback', () => {
             expect(Factory.build('thing').isAwesomeOption).toBe(true);
           });
 
-          it('should return object from callback as the final result', function() {
+          it('should return object from callback as the final result', () => {
             expect(Factory.build('thing')).toEqual({
               afterCalled: true,
               isAwesomeOption: true,
               wrapped: new Thing({
-                name: 'Thing 1'
-              })
+                name: 'Thing 1',
+              }),
             });
           });
         });
       });
 
-      describe('using attrs convenience function', function() {
-        beforeEach(function() {
+      describe('using attrs convenience function', () => {
+        beforeEach(() => {
           Factory.define('thing', Thing).attrs({
             name: 'Thing 1',
             attr1: 'value1',
-            attr2: 'value2'
+            attr2: 'value2',
           });
         });
 
-        it('should set attributes', function() {
-          var thing = Factory.build('thing');
+        it('should set attributes', () => {
+          const thing = Factory.build('thing');
           expect(thing).toEqual(
             expect.objectContaining({
               name: 'Thing 1',
               attr1: 'value1',
-              attr2: 'value2'
+              attr2: 'value2',
             })
           );
         });
       });
     });
 
-    describe('without a constructor', function() {
-      beforeEach(function() {
+    describe('without a constructor', () => {
+      beforeEach(() => {
         Factory.define('thing').attr('name', 'Thing 1');
       });
 
-      it('should return object with attributes set', function() {
+      it('should return object with attributes set', () => {
         expect(Factory.build('thing')).toEqual({ name: 'Thing 1' });
       });
 
-      it('should allow overriding attributes', function() {
+      it('should allow overriding attributes', () => {
         expect(Factory.build('thing', { name: 'changed' })).toEqual({
-          name: 'changed'
+          name: 'changed',
         });
       });
 
-      it('throws error if the factory is not defined', function() {
-        expect(function() {
+      it('throws error if the factory is not defined', () => {
+        expect(() => {
           Factory.build('nothing');
         }).toThrowError(Error, 'The "nothing" factory is not defined.');
       });
     });
   });
 
-  describe('buildList', function() {
-    beforeEach(function() {
+  describe('buildList', () => {
+    beforeEach(() => {
       Factory.define('thing').attr('name', 'Thing 1');
     });
 
-    it('should return array of objects', function() {
+    it('should return array of objects', () => {
       expect(Factory.buildList('thing', 10).length).toEqual(10);
     });
 
-    it('should return array of objects with default attributes', function() {
-      var things = Factory.buildList('thing', 10);
+    it('should return array of objects with default attributes', () => {
+      const things = Factory.buildList('thing', 10);
       for (var i = 0; i < 10; i++) {
         expect(things[i]).toEqual({ name: 'Thing 1' });
       }
     });
 
-    it('should return array of objects with specified attributes', function() {
-      var things = Factory.buildList('thing', 10, { name: 'changed' });
+    it('should return array of objects with specified attributes', () => {
+      const things = Factory.buildList('thing', 10, { name: 'changed' });
       for (var i = 0; i < 10; i++) {
         expect(things[i]).toEqual({ name: 'changed' });
       }
     });
 
-    it('should return an array of objects with a sequence', function() {
+    it('should return an array of objects with a sequence', () => {
       Factory.define('thing').sequence('id');
-      var things = Factory.buildList('thing', 4);
+      const things = Factory.buildList('thing', 4);
       for (var i = 0; i < 4; i++) {
         expect(things[i]).toEqual({ id: i + 1 });
       }
     });
 
-    it('should return an array of objects with a sequence and with specified attributes', function() {
-      Factory.define('thing')
-        .sequence('id')
-        .attr('name', 'Thing 1');
-      var things = Factory.buildList('thing', 4, { name: 'changed' });
+    it('should return an array of objects with a sequence and with specified attributes', () => {
+      Factory.define('thing').sequence('id').attr('name', 'Thing 1');
+      const things = Factory.buildList('thing', 4, { name: 'changed' });
       for (var i = 0; i < 4; i++) {
         expect(things[i]).toEqual({ id: i + 1, name: 'changed' });
       }
     });
 
-    it('should evaluate a option for every member of the list', function() {
+    it('should evaluate a option for every member of the list', () => {
       Factory.define('thing')
-        .option('random', function() {
+        .option('random', () => {
           return Math.random();
         })
-        .attr('number', ['random'], function(random) {
-          return random;
-        });
-      var things = Factory.buildList('thing', 2, {}, {});
+        .attr('number', ['random'], (random) => random);
+      const things = Factory.buildList('thing', 2, {}, {});
       expect(things[0].number).not.toEqual(things[1].number);
     });
 
-    describe('with an unregistered factory', function() {
-      var Other = new Factory().attr('name', 'Other 1');
+    describe('with an unregistered factory', () => {
+      const Other = new Factory().attr('name', 'Other 1');
 
-      it('should return array of objects', function() {
+      it('should return array of objects', () => {
         expect(Other.buildList(10).length).toEqual(10);
       });
 
-      it('should return array of objects with default attributes', function() {
-        var list = Other.buildList(10);
-        list.forEach(function(item) {
+      it('should return array of objects with default attributes', () => {
+        const list = Other.buildList(10);
+        list.forEach((item) => {
           expect(item).toEqual({ name: 'Other 1' });
         });
       });
 
-      it('should reutrn array of objects with specified attributes', function() {
-        var list = Other.buildList(10, { name: 'changed' });
-        list.forEach(function(item) {
+      it('should reutrn array of objects with specified attributes', () => {
+        const list = Other.buildList(10, { name: 'changed' });
+        list.forEach((item) => {
           expect(item).toEqual({ name: 'changed' });
         });
       });
 
-      it('should return an array of objects with a sequence', function() {
-        var Another = new Factory().sequence('id');
-        var list = Another.buildList(4);
-        list.forEach(function(item, idx) {
+      it('should return an array of objects with a sequence', () => {
+        const Another = new Factory().sequence('id');
+        const list = Another.buildList(4);
+        list.forEach((item, idx) => {
           expect(item).toEqual({ id: idx + 1 });
         });
       });
 
-      it('should return an array of objects with a sequence and with specified attributes', function() {
-        var Another = new Factory().sequence('id').attr('name', 'Another 1');
-        var list = Another.buildList(4, { name: 'changed' });
-        list.forEach(function(item, idx) {
+      it('should return an array of objects with a sequence and with specified attributes', () => {
+        const Another = new Factory().sequence('id').attr('name', 'Another 1');
+        const list = Another.buildList(4, { name: 'changed' });
+        list.forEach((item, idx) => {
           expect(item).toEqual({ id: idx + 1, name: 'changed' });
         });
       });
 
-      it('should evaluate an option for every member of the list', function() {
-        var Another = new Factory()
+      it('should evaluate an option for every member of the list', () => {
+        const Another = new Factory()
           .option('random', Math.random)
-          .attr('number', ['random'], function(random) {
-            return random;
-          });
-        var list = Another.buildList(2, {}, {});
+          .attr('number', ['random'], (random) => random);
+        const list = Another.buildList(2, {}, {});
         expect(list[0].number).not.toEqual(list[1].number);
       });
     });
   });
 
-  describe('extend', function() {
-    var Thing = function(attrs) {
-      for (var attr in attrs) {
-        this[attr] = attrs[attr];
+  describe('extend', () => {
+    class Thing {
+      constructor(attrs) {
+        for (var attr in attrs) {
+          this[attr] = attrs[attr];
+        }
       }
-    };
-    var Thingy = function(attrs) {
-      for (var attr in attrs) {
-        this[attr] = attrs[attr];
+    }
+    class Thingy {
+      constructor(attrs) {
+        for (var attr in attrs) {
+          this[attr] = attrs[attr];
+        }
       }
-    };
+    }
 
-    describe('with registered factories', function() {
-      beforeEach(function() {
+    describe('with registered factories', () => {
+      beforeEach(() => {
         Factory.define('thing', Thing)
           .attr('name', 'Thing 1')
-          .after(function(obj) {
+          .after((obj) => {
             obj.afterCalled = true;
           });
-        Factory.define('anotherThing')
-          .extend('thing')
-          .attr('title', 'Title 1');
+        Factory.define('anotherThing').extend('thing').attr('title', 'Title 1');
         Factory.define('differentThing', Thingy)
           .extend('thing')
           .attr('name', 'Different Thing');
       });
 
-      it('should extend the constructor', function() {
+      it('should extend the constructor', () => {
         expect(Factory.build('anotherThing') instanceof Thing).toBe(true);
         expect(Factory.build('differentThing') instanceof Thingy).toBe(true);
       });
 
-      it('should extend attributes', function() {
+      it('should extend attributes', () => {
         expect(Factory.build('anotherThing')).toEqual(
           expect.objectContaining({
             name: 'Thing 1',
             title: 'Title 1',
-            afterCalled: true
+            afterCalled: true,
           })
         );
       });
 
-      it('should extend callbacks', function() {
+      it('should extend callbacks', () => {
         expect(Factory.build('anotherThing').afterCalled).toBe(true);
       });
 
-      it('should override attributes', function() {
+      it('should override attributes', () => {
         expect(Factory.build('differentThing').name).toBe('Different Thing');
       });
     });
 
-    describe('with unregistered factories', function() {
-      var ParentFactory;
-      var ChildFactory;
-      var SiblingFactory;
+    describe('with unregistered factories', () => {
+      let ParentFactory;
+      let ChildFactory;
+      let SiblingFactory;
 
-      beforeEach(function() {
+      beforeEach(() => {
         ParentFactory = new Factory(Thing)
           .attr('name', 'Parent')
-          .after(function(obj) {
+          .after((obj) => {
             obj.afterCalled = true;
           });
         ChildFactory = new Factory()
@@ -303,85 +299,87 @@ describe('Factory', function() {
           .attr('name', 'Sibling');
       });
 
-      it('should extend the constructor', function() {
+      it('should extend the constructor', () => {
         expect(ChildFactory.build() instanceof Thing).toBe(true);
         expect(SiblingFactory.build() instanceof Thingy).toBe(true);
       });
 
-      it('should extend attributes', function() {
+      it('should extend attributes', () => {
         expect(ChildFactory.build()).toEqual(
           expect.objectContaining({
             name: 'Parent',
             title: 'Child',
-            afterCalled: true
+            afterCalled: true,
           })
         );
       });
 
-      it('should extend callbacks', function() {
+      it('should extend callbacks', () => {
         expect(SiblingFactory.build().afterCalled).toBe(true);
       });
 
-      it('should override attributes', function() {
+      it('should override attributes', () => {
         expect(SiblingFactory.build().name).toBe('Sibling');
       });
     });
   });
 
-  describe('attributes', function() {
-    beforeEach(function() {
+  describe('attributes', () => {
+    beforeEach(() => {
       Factory.define('thing').attr('name', 'Thing 1');
     });
 
-    it('should return object with attributes set', function() {
+    it('should return object with attributes set', () => {
       expect(Factory.attributes('thing')).toEqual({ name: 'Thing 1' });
     });
 
-    it('should allow overriding attributes', function() {
+    it('should allow overriding attributes', () => {
       expect(Factory.attributes('thing', { name: 'changed' })).toEqual({
-        name: 'changed'
+        name: 'changed',
       });
     });
   });
 
-  describe('prototype', function() {
-    var factory;
+  describe('prototype', () => {
+    let factory;
 
-    beforeEach(function() {
+    beforeEach(() => {
       factory = new Factory();
     });
 
-    describe('attr', function() {
-      it('should add given value to attributes', function() {
+    describe('attr', () => {
+      it('should add given value to attributes', () => {
         factory.attr('foo', 'bar');
         expect(factory.attributes().foo).toEqual('bar');
       });
 
-      it('should invoke function', function() {
-        var calls = 0;
-        factory.attr('dynamic', function() {
+      it('should invoke function', () => {
+        let calls = 0;
+        factory.attr('dynamic', () => {
           return ++calls;
         });
         expect(factory.attributes().dynamic).toEqual(1);
         expect(factory.attributes().dynamic).toEqual(2);
       });
 
-      it('should return the factory', function() {
+      it('should return the factory', () => {
         expect(factory.attr('foo', 1)).toBe(factory);
       });
 
-      it('should allow depending on other attributes', function() {
+      it('should allow depending on other attributes', () => {
         factory
-          .attr('fullName', ['firstName', 'lastName'], function(first, last) {
-            return first + ' ' + last;
-          })
+          .attr(
+            'fullName',
+            ['firstName', 'lastName'],
+            (first, last) => first + ' ' + last
+          )
           .attr('firstName', 'Default')
           .attr('lastName', 'Name');
 
         expect(factory.attributes()).toEqual({
           firstName: 'Default',
           lastName: 'Name',
-          fullName: 'Default Name'
+          fullName: 'Default Name',
         });
 
         expect(
@@ -389,27 +387,23 @@ describe('Factory', function() {
         ).toEqual({
           fullName: 'Michael Bluth',
           firstName: 'Michael',
-          lastName: 'Bluth'
+          lastName: 'Bluth',
         });
 
         expect(factory.attributes({ fullName: 'Buster Bluth' })).toEqual({
           fullName: 'Buster Bluth',
           firstName: 'Default',
-          lastName: 'Name'
+          lastName: 'Name',
         });
       });
 
-      it('throws when building when a dependency cycle is unbroken', function() {
+      it('throws when building when a dependency cycle is unbroken', () => {
         factory
           .option('rate', 0.0275)
-          .attr('fees', ['total', 'rate'], function(total, rate) {
-            return total * rate;
-          })
-          .attr('total', ['fees', 'rate'], function(fees, rate) {
-            return fees / rate;
-          });
+          .attr('fees', ['total', 'rate'], (total, rate) => total * rate)
+          .attr('total', ['fees', 'rate'], (fees, rate) => fees / rate);
 
-        expect(function() {
+        expect(() => {
           factory.build();
         }).toThrowError(
           Error,
@@ -417,8 +411,8 @@ describe('Factory', function() {
         );
       });
 
-      it('always calls dynamic attributes when they depend on themselves', function() {
-        factory.attr('person', ['person'], function(person) {
+      it('always calls dynamic attributes when they depend on themselves', () => {
+        factory.attr('person', ['person'], (person) => {
           if (!person) {
             person = {};
           }
@@ -429,24 +423,24 @@ describe('Factory', function() {
         });
 
         expect(factory.attributes({ person: { age: 55 } })).toEqual({
-          person: { name: 'Bob', age: 55 }
+          person: { name: 'Bob', age: 55 },
         });
       });
     });
 
-    describe('sequence', function() {
-      it('should return the factory', function() {
+    describe('sequence', () => {
+      it('should return the factory', () => {
         expect(factory.sequence('id')).toBe(factory);
       });
 
-      it('should return an incremented value for each invocation', function() {
+      it('should return an incremented value for each invocation', () => {
         factory.sequence('id');
         expect(factory.attributes().id).toEqual(1);
         expect(factory.attributes().id).toEqual(2);
         expect(factory.attributes().id).toEqual(3);
       });
 
-      it('should increment different sequences independently', function() {
+      it('should increment different sequences independently', () => {
         factory.sequence('id');
         factory.sequence('count');
 
@@ -454,139 +448,129 @@ describe('Factory', function() {
         expect(factory.attributes()).toEqual({ id: 2, count: 2 });
       });
 
-      it('should share the sequence when extending a factory', function() {
-        var User = Factory.define('User').sequence('id');
-        var AdminUser = Factory.define('AdminUser').extend('User');
+      it('should share the sequence when extending a factory', () => {
+        const User = Factory.define('User').sequence('id');
+        const AdminUser = Factory.define('AdminUser').extend('User');
 
-        var adminUser = AdminUser.build();
-        var user = User.build();
+        const adminUser = AdminUser.build();
+        const user = User.build();
 
         expect(adminUser.id).toEqual(1);
         expect(user.id).toEqual(2);
       });
 
-      it('should use custom function', function() {
-        factory.sequence('name', function(i) {
-          return 'user' + i;
-        });
+      it('should use custom function', () => {
+        factory.sequence('name', (i) => 'user' + i);
         expect(factory.attributes().name).toEqual('user1');
       });
 
-      it('should be able to depend on one option', function() {
-        var startTime = 5;
+      it('should be able to depend on one option', () => {
+        const startTime = 5;
 
         factory
           .option('startTime', startTime)
-          .sequence('time', ['startTime'], function(i, startTime) {
-            return startTime + i;
-          });
+          .sequence('time', ['startTime'], (i, startTime) => startTime + i);
 
         expect(factory.attributes()).toEqual({ time: startTime + 1 });
         expect(factory.attributes()).toEqual({ time: startTime + 2 });
         expect(factory.attributes()).toEqual({ time: startTime + 3 });
       });
 
-      it('should be able to depend on one attribute', function() {
-        var startTime = 5;
+      it('should be able to depend on one attribute', () => {
+        const startTime = 5;
 
         factory
           .attr('startTime', startTime)
-          .sequence('time', ['startTime'], function(i, startTime) {
-            return startTime + i;
-          });
+          .sequence('time', ['startTime'], (i, startTime) => startTime + i);
 
         expect(factory.attributes()).toEqual({
           startTime: startTime,
-          time: startTime + 1
+          time: startTime + 1,
         });
         expect(factory.attributes()).toEqual({
           startTime: startTime,
-          time: startTime + 2
+          time: startTime + 2,
         });
         expect(factory.attributes()).toEqual({
           startTime: startTime,
-          time: startTime + 3
+          time: startTime + 3,
         });
       });
 
-      it('should be able to depend on several attributes and options', function() {
-        var startTime = 5;
-        var endTime = 7;
+      it('should be able to depend on several attributes and options', () => {
+        const startTime = 5;
+        const endTime = 7;
 
         factory
           .attr('startTime', startTime)
           .attr('endTime', endTime)
           .option('checkEndTime', true)
-          .sequence('time', ['startTime', 'endTime', 'checkEndTime'], function(
-            i,
-            startTime,
-            endTime,
-            checkEndTime
-          ) {
-            return checkEndTime
-              ? Math.min(startTime + i, endTime)
-              : startTime + i;
-          });
+          .sequence(
+            'time',
+            ['startTime', 'endTime', 'checkEndTime'],
+            (i, startTime, endTime, checkEndTime) =>
+              checkEndTime ? Math.min(startTime + i, endTime) : startTime + i
+          );
 
         expect(factory.attributes()).toEqual({
           startTime: startTime,
           endTime: endTime,
-          time: startTime + 1
+          time: startTime + 1,
         });
         expect(factory.attributes()).toEqual({
           startTime: startTime,
           endTime: endTime,
-          time: startTime + 2
+          time: startTime + 2,
         });
         expect(factory.attributes()).toEqual({
           startTime: startTime,
           endTime: endTime,
-          time: startTime + 2
+          time: startTime + 2,
         });
       });
     });
 
-    describe('attributes', function() {
-      beforeEach(function() {
+    describe('attributes', () => {
+      beforeEach(() => {
         factory.attr('foo', 1).attr('bar', 2);
       });
 
-      it('should allow overriding an attribute', function() {
+      it('should allow overriding an attribute', () => {
         expect(factory.attributes({ bar: 3 })).toEqual({ foo: 1, bar: 3 });
       });
 
-      it('should allow overriding an attribute with a falsy value', function() {
+      it('should allow overriding an attribute with a falsy value', () => {
         expect(factory.attributes({ bar: false })).toEqual({
           foo: 1,
-          bar: false
+          bar: false,
         });
       });
 
-      it('should allow adding new attributes', function() {
+      it('should allow adding new attributes', () => {
         expect(factory.attributes({ baz: 3 })).toEqual({
           foo: 1,
           bar: 2,
-          baz: 3
+          baz: 3,
         });
       });
     });
 
-    describe('option', function() {
-      beforeEach(function() {
+    describe('option', () => {
+      beforeEach(() => {
         factory.option('useCapsLock', false);
       });
 
-      it('should return the factory', function() {
+      it('should return the factory', () => {
         expect(factory.option('rate')).toBe(factory);
       });
 
-      it('should not create attributes in the build result', function() {
+      it('should not create attributes in the build result', () => {
         expect(factory.attributes().useCapsLock).toBeUndefined();
       });
 
-      it('throws when no default or value is given', function() {
+      it('throws when no default or value is given', () => {
         factory.option('someOptionWithoutAValue');
-        expect(function() {
+        expect(() => {
           factory.attributes();
         }).toThrowError(
           Error,
@@ -594,11 +578,11 @@ describe('Factory', function() {
         );
       });
 
-      it('should be usable by attributes', function() {
-        var useCapsLockValues = [];
-        factory.attr('name', ['useCapsLock'], function(useCapsLock) {
+      it('should be usable by attributes', () => {
+        const useCapsLockValues = [];
+        factory.attr('name', ['useCapsLock'], (useCapsLock) => {
           useCapsLockValues.push(useCapsLock);
-          var name = 'Madeline';
+          const name = 'Madeline';
           if (useCapsLock) {
             return name.toUpperCase();
           } else {
