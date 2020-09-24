@@ -6,15 +6,15 @@
  * @param {Function=} constructor
  * @class
  */
-var Factory = function(constructor) {
-  this.construct = constructor;
-  this._attrs = {};
-  this.opts = {};
-  this.sequences = {};
-  this.callbacks = [];
-};
+class Factory {
+  constructor(constructor) {
+    this.construct = constructor;
+    this._attrs = {};
+    this.opts = {};
+    this.sequences = {};
+    this.callbacks = [];
+  }
 
-Factory.prototype = {
   /**
    * Define an attribute on this factory. Attributes can optionally define a
    * default value, either as a value (e.g. a string or number) or as a builder
@@ -54,7 +54,7 @@ Factory.prototype = {
    * @param {*=} value
    * @return {Factory}
    */
-  attr: function(attr, dependencies, value) {
+  attr(attr, dependencies, value) {
     var builder;
     if (arguments.length === 2) {
       value = dependencies;
@@ -64,12 +64,12 @@ Factory.prototype = {
     builder =
       typeof value === 'function'
         ? value
-        : function() {
+        : function () {
             return value;
           };
     this._attrs[attr] = { dependencies: dependencies || [], builder: builder };
     return this;
-  },
+  }
 
   /**
    * Convenience function for defining a set of attributes on this object as
@@ -86,14 +86,14 @@ Factory.prototype = {
    * @param {object} attributes
    * @return {Factory}
    */
-  attrs: function(attributes) {
+  attrs(attributes) {
     for (var attr in attributes) {
       if (Factory.util.hasOwnProp(attributes, attr)) {
         this.attr(attr, attributes[attr]);
       }
     }
     return this;
-  },
+  }
 
   /**
    * Define an option for this factory. Options are values that may inform
@@ -123,7 +123,7 @@ Factory.prototype = {
    * @param {*=} value
    * @return {Factory}
    */
-  option: function(opt, dependencies, value) {
+  option(opt, dependencies, value) {
     var builder;
     if (arguments.length === 2) {
       value = dependencies;
@@ -133,13 +133,13 @@ Factory.prototype = {
       builder =
         typeof value === 'function'
           ? value
-          : function() {
+          : function () {
               return value;
             };
     }
     this.opts[opt] = { dependencies: dependencies || [], builder: builder };
     return this;
-  },
+  }
 
   /**
    * Defines an attribute that, by default, simply has an auto-incrementing
@@ -158,7 +158,7 @@ Factory.prototype = {
    * @param {function(number): *=} builder
    * @return {Factory}
    */
-  sequence: function(attr, dependencies, builder) {
+  sequence(attr, dependencies, builder) {
     var factory = this;
 
     if (arguments.length === 2) {
@@ -167,17 +167,17 @@ Factory.prototype = {
     }
     builder =
       builder ||
-      function(i) {
+      function (i) {
         return i;
       };
-    return this.attr(attr, dependencies, function() {
+    return this.attr(attr, dependencies, function () {
       var args = [].slice.call(arguments);
 
       factory.sequences[attr] = factory.sequences[attr] || 0;
       args.unshift(++factory.sequences[attr]);
       return builder.apply(null, args);
     });
-  },
+  }
 
   /**
    * Sets a post-processor callback that will receive built objects and the
@@ -187,10 +187,10 @@ Factory.prototype = {
    * @param {function(object, object=)} callback
    * @return {Factory}
    */
-  after: function(callback) {
+  after(callback) {
     this.callbacks.push(callback);
     return this;
-  },
+  }
 
   /**
    * Builds a plain object containing values for each of the declared
@@ -201,14 +201,14 @@ Factory.prototype = {
    * @param {object=} options
    * @return {object}
    */
-  attributes: function(attributes, options) {
+  attributes(attributes, options) {
     attributes = Factory.util.extend({}, attributes);
     options = this.options(options);
     for (var attr in this._attrs) {
       this._attrValue(attr, attributes, options, [attr]);
     }
     return attributes;
-  },
+  }
 
   /**
    * Generates a value for the given named attribute and adds the result to the
@@ -221,7 +221,7 @@ Factory.prototype = {
    * @param {Array.<string>} stack
    * @return {*}
    */
-  _attrValue: function(attr, attributes, options, stack) {
+  _attrValue(attr, attributes, options, stack) {
     if (
       !this._alwaysCallBuilder(attr) &&
       Factory.util.hasOwnProp(attributes, attr)
@@ -229,7 +229,7 @@ Factory.prototype = {
       return attributes[attr];
     }
 
-    var value = this._buildWithDependencies(this._attrs[attr], function(dep) {
+    var value = this._buildWithDependencies(this._attrs[attr], function (dep) {
       if (Factory.util.hasOwnProp(options, dep)) {
         return options[dep];
       } else if (dep === attr) {
@@ -244,7 +244,7 @@ Factory.prototype = {
     });
     attributes[attr] = value;
     return value;
-  },
+  }
 
   /**
    * Determines whether the given named attribute has listed itself as a
@@ -254,10 +254,10 @@ Factory.prototype = {
    * @param {string} attr
    * @return {boolean}
    */
-  _alwaysCallBuilder: function(attr) {
+  _alwaysCallBuilder(attr) {
     var attrMeta = this._attrs[attr];
     return attrMeta.dependencies.indexOf(attr) >= 0;
-  },
+  }
 
   /**
    * Generates values for all the registered options using the values given.
@@ -266,13 +266,13 @@ Factory.prototype = {
    * @param {?object} options
    * @return {object}
    */
-  options: function(options) {
+  options(options) {
     options = Factory.util.extend({}, options || {});
     for (var opt in this.opts) {
       options[opt] = this._optionValue(opt, options);
     }
     return options;
-  },
+  }
 
   /**
    * Generates a value for the given named option and adds the result to the
@@ -283,7 +283,7 @@ Factory.prototype = {
    * @param {object} options
    * @return {*}
    */
-  _optionValue: function(opt, options) {
+  _optionValue(opt, options) {
     if (Factory.util.hasOwnProp(options, opt)) {
       return options[opt];
     }
@@ -295,10 +295,10 @@ Factory.prototype = {
       );
     }
 
-    return this._buildWithDependencies(optMeta, function(dep) {
+    return this._buildWithDependencies(optMeta, function (dep) {
       return this._optionValue(dep, options);
     });
-  },
+  }
 
   /**
    * Calls the builder function with its dependencies as determined by the
@@ -309,14 +309,14 @@ Factory.prototype = {
    * @param {function(string): *} getDep
    * @return {*}
    */
-  _buildWithDependencies: function(meta, getDep) {
+  _buildWithDependencies(meta, getDep) {
     var deps = meta.dependencies;
     var self = this;
-    var args = deps.map(function() {
+    var args = deps.map(function () {
       return getDep.apply(self, arguments);
     });
     return meta.builder.apply(this, args);
-  },
+  }
 
   /**
    * Builds objects by getting values for all attributes and optionally passing
@@ -326,7 +326,7 @@ Factory.prototype = {
    * @param {object=} options
    * @return {*}
    */
-  build: function(attributes, options) {
+  build(attributes, options) {
     var result = this.attributes(attributes, options);
     var retval = null;
 
@@ -342,15 +342,15 @@ Factory.prototype = {
       retval = callbackResult || retval;
     }
     return retval;
-  },
+  }
 
-  buildList: function(size, attributes, options) {
+  buildList(size, attributes, options) {
     var objs = [];
     for (var i = 0; i < size; i++) {
       objs.push(this.build(attributes, options));
     }
     return objs;
-  },
+  }
 
   /**
    * Extends a given factory by copying over its attributes, options,
@@ -360,7 +360,7 @@ Factory.prototype = {
    * @param {string|Factory} name The factory to extend.
    * @return {Factory}
    */
-  extend: function(name) {
+  extend(name) {
     var factory = typeof name === 'string' ? Factory.factories[name] : name;
     // Copy the parent's constructor
     if (this.construct === undefined) {
@@ -372,12 +372,12 @@ Factory.prototype = {
     this.callbacks = factory.callbacks.slice();
     return this;
   }
-};
+}
 
 /**
  * @private
  */
-Factory.util = (function() {
+Factory.util = (function () {
   var hasOwnProp = Object.prototype.hasOwnProperty;
 
   return {
@@ -389,7 +389,7 @@ Factory.util = (function() {
      * @param {string} prop
      * @return {boolean}
      */
-    hasOwnProp: function(object, prop) {
+    hasOwnProp: function (object, prop) {
       return hasOwnProp.call(object, prop);
     },
 
@@ -401,7 +401,7 @@ Factory.util = (function() {
      * @param {object=} source
      * @return {object}
      */
-    extend: function(dest, source) {
+    extend: function (dest, source) {
       if (source) {
         for (var key in source) {
           if (hasOwnProp.call(source, key)) {
@@ -410,7 +410,7 @@ Factory.util = (function() {
         }
       }
       return dest;
-    }
+    },
   };
 })();
 
@@ -424,7 +424,7 @@ Factory.factories = {};
  * @param {function(object): *=} constructor
  * @return {Factory}
  */
-Factory.define = function(name, constructor) {
+Factory.define = function (name, constructor) {
   var factory = new Factory(constructor);
   this.factories[name] = factory;
   return factory;
@@ -438,7 +438,7 @@ Factory.define = function(name, constructor) {
  * @param {object=} options
  * @return {*}
  */
-Factory.build = function(name, attributes, options) {
+Factory.build = function (name, attributes, options) {
   if (!this.factories[name]) {
     throw new Error('The "' + name + '" factory is not defined.');
   }
@@ -454,7 +454,7 @@ Factory.build = function(name, attributes, options) {
  * @param {object=} options
  * @return {Array.<*>}
  */
-Factory.buildList = function(name, size, attributes, options) {
+Factory.buildList = function (name, size, attributes, options) {
   var objs = [];
   for (var i = 0; i < size; i++) {
     objs.push(Factory.build(name, attributes, options));
@@ -470,7 +470,7 @@ Factory.buildList = function(name, size, attributes, options) {
  * @param {object} options
  * @return {object}
  */
-Factory.attributes = function(name, attributes, options) {
+Factory.attributes = function (name, attributes, options) {
   return this.factories[name].attributes(attributes, options);
 };
 
@@ -480,7 +480,7 @@ if (typeof exports === 'object' && typeof module !== 'undefined') {
   /* eslint-env commonjs:false */
 } else if (typeof define === 'function' && define.amd) {
   /* eslint-env amd */
-  define([], function() {
+  define([], function () {
     return { Factory: Factory };
   });
   /* eslint-env amd:false */

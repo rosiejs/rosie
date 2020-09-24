@@ -26,28 +26,26 @@ Factory.define('game')
 
   // Default to two players. If players were given, fill in
   // whatever attributes might be missing.
-  .attr('players', ['players'], players => {
+  .attr('players', ['players'], (players) => {
     if (!players) {
       players = [{}, {}];
     }
-    return players.map(data => Factory.attributes('player', data));
+    return players.map((data) => Factory.attributes('player', data));
   });
 
 Factory.define('player')
   .sequence('id')
-  .sequence('name', function(i) {
+  .sequence('name', (i) => {
     return 'player' + i;
   })
 
   // Define `position` to depend on `id`.
-  .attr('position', ['id'], id => {
+  .attr('position', ['id'], (id) => {
     const positions = ['pitcher', '1st base', '2nd base', '3rd base'];
     return positions[id % positions.length];
   });
 
-Factory.define('disabled-player')
-  .extend('player')
-  .attr('state', 'disabled');
+Factory.define('disabled-player').extend('player').attr('state', 'disabled');
 ```
 
 **Object Building:** Build an object, passing in attributes that you want to override:
@@ -87,11 +85,9 @@ Factory.define('matches')
     const matches = [];
     for (const i = 1; i <= numMatches; i++) {
       matches.push({
-        matchDate: moment(seasonStart)
-          .add(i, 'week')
-          .format('YYYY-MM-DD'),
+        matchDate: moment(seasonStart).add(i, 'week').format('YYYY-MM-DD'),
         homeScore: Math.floor(Math.random() * 5),
-        awayScore: Math.floor(Math.random() * 5)
+        awayScore: Math.floor(Math.random() * 5),
       });
     }
     return matches;
@@ -123,9 +119,9 @@ Factory.define('game')
   .attrs({
     is_over: false,
     created_at: () => new Date(),
-    random_seed: () => Math.random()
+    random_seed: () => Math.random(),
   })
-  .attr('players', ['players'], players => {
+  .attr('players', ['players'], (players) => {
     /* etc. */
   });
 ```
@@ -234,7 +230,7 @@ import { Factory } from 'rosie';
 import Game from './game';
 
 export default new Factory().extend(Game).attrs({
-  score: 10
+  score: 10,
 });
 ```
 
