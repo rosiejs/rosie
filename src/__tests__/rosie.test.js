@@ -9,7 +9,7 @@ describe('Factory', () => {
     describe('with a normal constructor', () => {
       class Thing {
         constructor(attrs) {
-          for (var attr in attrs) {
+          for (let attr in attrs) {
             this[attr] = attrs[attr];
           }
         }
@@ -142,14 +142,14 @@ describe('Factory', () => {
 
     it('should return array of objects with default attributes', () => {
       const things = Factory.buildList('thing', 10);
-      for (var i = 0; i < 10; i++) {
+      for (let i = 0; i < 10; i++) {
         expect(things[i]).toEqual({ name: 'Thing 1' });
       }
     });
 
     it('should return array of objects with specified attributes', () => {
       const things = Factory.buildList('thing', 10, { name: 'changed' });
-      for (var i = 0; i < 10; i++) {
+      for (let i = 0; i < 10; i++) {
         expect(things[i]).toEqual({ name: 'changed' });
       }
     });
@@ -157,7 +157,7 @@ describe('Factory', () => {
     it('should return an array of objects with a sequence', () => {
       Factory.define('thing').sequence('id');
       const things = Factory.buildList('thing', 4);
-      for (var i = 0; i < 4; i++) {
+      for (let i = 0; i < 4; i++) {
         expect(things[i]).toEqual({ id: i + 1 });
       }
     });
@@ -165,7 +165,7 @@ describe('Factory', () => {
     it('should return an array of objects with a sequence and with specified attributes', () => {
       Factory.define('thing').sequence('id').attr('name', 'Thing 1');
       const things = Factory.buildList('thing', 4, { name: 'changed' });
-      for (var i = 0; i < 4; i++) {
+      for (let i = 0; i < 4; i++) {
         expect(things[i]).toEqual({ id: i + 1, name: 'changed' });
       }
     });
@@ -230,14 +230,14 @@ describe('Factory', () => {
   describe('extend', () => {
     class Thing {
       constructor(attrs) {
-        for (var attr in attrs) {
+        for (let attr in attrs) {
           this[attr] = attrs[attr];
         }
       }
     }
     class Thingy {
       constructor(attrs) {
-        for (var attr in attrs) {
+        for (let attr in attrs) {
           this[attr] = attrs[attr];
         }
       }
