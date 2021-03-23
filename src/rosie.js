@@ -1,7 +1,6 @@
 /**
  * Creates a new factory with attributes, options, etc. to be used to build
- * objects. Generally you should use `Factory.define()` instead of this
- * constructor.
+ * objects.
  *
  * @param {Function=} constructor
  * @class
@@ -13,6 +12,8 @@ class Factory {
     this.opts = {};
     this.sequences = {};
     this.callbacks = [];
+
+    Factory._allFactories.push(this);
   }
 
   /**
@@ -351,9 +352,21 @@ class Factory {
     this.callbacks = factory.callbacks.slice();
     return this;
   }
+
+  /**
+   * Resets any state changed by building objects back to the original values.
+   * Preserves attributes and options as-is.
+   */
+  reset() {
+    this.sequences = {};
+  }
 }
 
 Factory.factories = {};
+Object.defineProperty(Factory, '_allFactories', {
+  value: [],
+  enumerable: false,
+});
 
 /**
  * Defines a factory by name and constructor function. Call #attr and #option
@@ -413,6 +426,31 @@ Factory.attributes = function (name, attributes, options) {
   return this.factories[name].attributes(attributes, options);
 };
 
+/**
+ * Resets a factory by name. Preserves attributes and options as-is.
+ *
+ * @param {string} name
+ */
+Factory.reset = function (name) {
+  Factory.factories[name].reset();
+};
+
+/**
+ * Resets all factory build state. Preserves attributes and options as-is.
+ */
+Factory.resetAll = function () {
+  Factory._allFactories.forEach((factory) => factory.reset());
+};
+
+/**
+ * Unregister and forget all existing factories.
+ */
+Factory.implode = function () {
+  Factory.factories = {};
+  Factory._allFactories.length = 0;
+};
+
+/* istanbul ignore next */
 if (typeof exports === 'object' && typeof module !== 'undefined') {
   /* eslint-env commonjs */
   exports.Factory = Factory;
