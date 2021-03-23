@@ -2,7 +2,7 @@ const { Factory } = require('../rosie');
 
 describe('Factory', () => {
   afterEach(() => {
-    Factory.factories = {};
+    Factory.implode();
   });
 
   describe('build', () => {
@@ -224,6 +224,13 @@ describe('Factory', () => {
         const list = Another.buildList(2, {}, {});
         expect(list[0].number).not.toEqual(list[1].number);
       });
+
+      it('should be reset by resetAll', () => {
+        const Counter = new Factory().sequence('count');
+        expect(Counter.build()).toEqual({ count: 1 });
+        Factory.resetAll();
+        expect(Counter.build()).toEqual({ count: 1 });
+      });
     });
   });
 
@@ -247,6 +254,7 @@ describe('Factory', () => {
       beforeEach(() => {
         Factory.define('thing', Thing)
           .attr('name', 'Thing 1')
+          .sequence('count')
           .after((obj) => {
             obj.afterCalled = true;
           });
@@ -277,6 +285,32 @@ describe('Factory', () => {
 
       it('should override attributes', () => {
         expect(Factory.build('differentThing').name).toBe('Different Thing');
+      });
+
+      it('should reset sequences', () => {
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 1 })
+        );
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 2 })
+        );
+        Factory.reset('thing');
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 1 })
+        );
+      });
+
+      it('should be reset by resetAll', () => {
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 1 })
+        );
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 2 })
+        );
+        Factory.resetAll();
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 1 })
+        );
       });
     });
 
@@ -527,6 +561,13 @@ describe('Factory', () => {
           endTime: endTime,
           time: startTime + 2,
         });
+      });
+
+      it('should be able to be reset', () => {
+        factory.sequence('count');
+        expect(factory.attributes()).toEqual({ count: 1 });
+        factory.reset();
+        expect(factory.attributes()).toEqual({ count: 1 });
       });
     });
 

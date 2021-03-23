@@ -299,6 +299,28 @@ Identical to `.build` except it returns an array of built objects. `size` is req
 - **Factory.buildList(`factory_name`, size, `attributes`, `options`)** - when buildList is called against the rosie Factory singleton, the first param is the name of the factory to use to build the object. The `attributes` and `options` behave the same as the call to `.build`.
 - **instance.buildList(size, `attributes`, `options`)** - when buildList is called on a factory instance only the size, `attributes` and `options` objects are necessary (strictly speaking only the size is necessary)
 
+### Testing
+
+You may find `resetAll` useful when working with testing frameworks such as Jest. It resets any build state, such as sequences, to their original values:
+
+```js
+import Factory from 'rosie';
+
+beforeEach(() => {
+  Factory.resetAll();
+});
+```
+
+Or call `reset` on a specific factory:
+
+```js
+import Game from './game';
+
+beforeEach(() => {
+  Game.reset();
+});
+```
+
 ## Contributing
 
 1.  Fork it
