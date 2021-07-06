@@ -2,7 +2,7 @@
 
 ![Rosie the Riveter](https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/We_Can_Do_It%21.jpg/220px-We_Can_Do_It%21.jpg)
 
-Rosie is a factory for building JavaScript objects, mostly useful for setting up test data. It is inspired by [factory_girl](https://github.com/thoughtbot/factory_girl).
+Rosie is a factory for building JavaScript objects, mostly useful for setting up test data. It is inspired by [factory_bot](https://github.com/thoughtbot/factory_bot).
 
 To use Rosie you first define a _factory_. The _factory_ is defined in terms of _attributes_, _sequences_, _options_, _callbacks_, and can inherit from other factories. Once the factory is defined you use it to build _objects_.
 
