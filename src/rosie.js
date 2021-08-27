@@ -338,18 +338,92 @@ class Factory {
    * different types which all share certain attributes.
    *
    * @param {string|Factory} name The factory to extend.
+   * @param {string} attribute The attribute name to include this factory under.
+   *        Lets the parent factory accept nested attributes and options for the child.
    * @return {Factory}
    */
-  extend(name) {
+  extend(name, attribute) {
     const factory = typeof name === 'string' ? Factory.factories[name] : name;
-    // Copy the parent's constructor
-    if (this.construct === undefined) {
-      this.construct = factory.construct;
+    if (attribute) {
+      // some convenience functions
+      // prefix a string with `${attribute}__`
+      const prefixAttr = (attr) => {
+        return `${attribute}__${attr}`;
+      };
+      let prefixLen = attribute.length + 2;
+
+      // unprefix a string with `${attribute}__`
+      const unprefixAttr = (attr) => {
+        return attr.substr(prefixLen);
+      };
+
+      // transform metaObjects to have prefixed names and dependencies
+      const transformInnards = (obj) => {
+        return Object.keys(obj).reduce(
+          (p, c) => ({
+            ...p,
+            [prefixAttr(c)]: {
+              ...obj[c],
+              dependencies: obj[c].dependencies.map(prefixAttr),
+            },
+          }),
+          {}
+        );
+      };
+
+      // transform options and attributes to have prefixes
+      let newOpts = transformInnards(factory.opts);
+      let newAttrs = transformInnards(factory._attrs);
+
+      // merge the new options and attributes into the existing ones
+      Object.assign(this.opts, newOpts);
+      Object.assign(this._attrs, newAttrs);
+
+      // prepare values for the new attribute
+      let newOptNames = Object.keys(newOpts);
+      let optionSize = newOptNames.length;
+      let newDependencies = [...newOptNames, ...Object.keys(newAttrs)];
+
+      // add the new attribute
+      this.attr(attribute, newDependencies, (...optsAttrs) => {
+        // map all the values to their names
+        let optAttrMap = newDependencies.reduce(
+          (p, c, i) => ({ ...p, [c]: optsAttrs[i] }),
+          {}
+        );
+
+        // separate the options from the attributes, and restore the original names
+        let childOpts = newDependencies
+          .slice(0, optionSize)
+          .reduce((p, c) => ({ ...p, [unprefixAttr(c)]: optAttrMap[c] }), {});
+
+        // only pass attributes into the child if they are non-null
+        let childAttrs = newDependencies
+          .slice(optionSize)
+          .filter((a) => !!optAttrMap[a])
+          .reduce((p, c) => ({ ...p, [unprefixAttr(c)]: optAttrMap[c] }), {});
+
+        // actually build the child object
+        return factory.build(childAttrs, childOpts);
+      });
+
+      // add a callback after build to remove the extra added attributes from the child
+      this.after((obj) => {
+        Object.keys(obj)
+          .filter((k) => k.match(/^.*__.*$/))
+          .forEach((k) => delete obj[k]);
+        return obj;
+      });
+    } else {
+      // Copy the parent's constructor
+      if (this.construct === undefined) {
+        this.construct = factory.construct;
+      }
+      Object.assign(this._attrs, factory._attrs);
+      Object.assign(this.opts, factory.opts);
+      // Copy the parent's callbacks
+      this.callbacks = factory.callbacks.slice();
     }
-    Object.assign(this._attrs, factory._attrs);
-    Object.assign(this.opts, factory.opts);
-    // Copy the parent's callbacks
-    this.callbacks = factory.callbacks.slice();
     return this;
   }
 
