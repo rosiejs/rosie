@@ -232,9 +232,9 @@ export default new Factory().extend(Game).attrs({
 });
 ```
 
-## Extending child factories and nested attributes
+## Nested Factories
 
-You can use the extend function with a second argument to add the factory as a 'child' factory instead. The attributes and options of the child factory are exposed on the parent as nested attributes, using the `attribute__childAttr` syntax (double underscores). You can use this with both registered and unregistered factories.
+You can use the `extend` method with a second argument to add the factory as a nested factory instead. The attributes and options of the nested factory are exposed on the parent as nested attributes, using the `attribute__childAttr` syntax (those are double underscores). You can use this with both registered and unregistered factories.
 
 ```js
 // factories/registered-game-with-player.js
