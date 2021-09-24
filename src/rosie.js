@@ -205,13 +205,6 @@ class Factory {
    * @return {*}
    */
   _attrValue(attr, attributes, options, stack) {
-    if (
-      !this._alwaysCallBuilder(attr) &&
-      Object.prototype.hasOwnProperty.call(attributes, attr)
-    ) {
-      return attributes[attr];
-    }
-
     const value = this._buildWithDependencies(this._attrs[attr], (dep) => {
       if (Object.prototype.hasOwnProperty.call(options, dep)) {
         return options[dep];
@@ -225,6 +218,14 @@ class Factory {
         return this._attrValue(dep, attributes, options, stack.concat([dep]));
       }
     });
+
+    if (
+      !this._alwaysCallBuilder(attr) &&
+      Object.prototype.hasOwnProperty.call(attributes, attr)
+    ) {      
+      Object.assign(value , attributes[attr]);
+    }
+    
     attributes[attr] = value;
     return value;
   }
