@@ -219,13 +219,17 @@ class Factory {
       }
     });
 
+
     if (
       !this._alwaysCallBuilder(attr) &&
       Object.prototype.hasOwnProperty.call(attributes, attr)
-    ) {      
-      Object.assign(value , attributes[attr]);
+    ) {
+      if(value.constructor.name == "Array" || value.constructor.name == "Object")
+        Object.assign(value , attributes[attr]);
+        else{
+          return attributes[attr];      
+        }
     }
-    
     attributes[attr] = value;
     return value;
   }
