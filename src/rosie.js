@@ -238,6 +238,7 @@ class Factory {
    * @return {boolean}
    */
   _alwaysCallBuilder(attr) {
+    if (typeof this._attrs[attr] === 'undefined') throw new Error(`Dependency ${attr} does not exist, is the attribute or option defined?`);
     const attrMeta = this._attrs[attr];
     return attrMeta.dependencies.indexOf(attr) >= 0;
   }
