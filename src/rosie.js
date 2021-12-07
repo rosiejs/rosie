@@ -5,13 +5,14 @@
  * @param {Function=} constructor
  * @class
  */
-class Factory {
+ class Factory {
   constructor(constructor) {
     this.construct = constructor;
     this._attrs = {};
     this.opts = {};
     this.sequences = {};
     this.callbacks = [];
+
     Factory._allFactories.push(this);
   }
 
@@ -192,8 +193,6 @@ class Factory {
     return attributes;
   }
 
-
-
   /**
    * Generates a value for the given named attribute and adds the result to the
    * given attributes list.
@@ -206,7 +205,7 @@ class Factory {
    * @return {*}
    */
   _attrValue(attr, attributes, options, stack) {
-    var value = this._buildWithDependencies(this._attrs[attr], (dep) => {
+    const value = this._buildWithDependencies(this._attrs[attr], (dep) => {
       if (Object.prototype.hasOwnProperty.call(options, dep)) {
         return options[dep];
       } else if (dep === attr) {
