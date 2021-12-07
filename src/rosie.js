@@ -5,7 +5,7 @@
  * @param {Function=} constructor
  * @class
  */
- class Factory {
+class Factory {
   constructor(constructor) {
     this.construct = constructor;
     this._attrs = {};
