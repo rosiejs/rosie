@@ -126,7 +126,7 @@ describe('Factory', () => {
       it('throws error if the factory is not defined', () => {
         expect(() => {
           Factory.build('nothing');
-        }).toThrowError(Error, 'The "nothing" factory is not defined.');
+        }).toThrow(Error, 'The "nothing" factory is not defined.');
       });
     });
   });
@@ -439,10 +439,7 @@ describe('Factory', () => {
 
         expect(() => {
           factory.build();
-        }).toThrowError(
-          Error,
-          'detected a dependency cycle: fees -> total -> fees'
-        );
+        }).toThrow(Error, 'detected a dependency cycle: fees -> total -> fees');
       });
 
       it('always calls dynamic attributes when they depend on themselves', () => {
@@ -613,7 +610,7 @@ describe('Factory', () => {
         factory.option('someOptionWithoutAValue');
         expect(() => {
           factory.attributes();
-        }).toThrowError(
+        }).toThrow(
           Error,
           'option `someOptionWithoutAValue` has no default value and none was provided'
         );
