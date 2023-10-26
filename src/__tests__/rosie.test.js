@@ -59,6 +59,9 @@ describe('Factory', () => {
             Factory.define('thing', Thing)
               .option('isAwesome', true)
               .attr('name', 'Thing 1')
+              .after((obj) => ({
+                wrapped: obj,
+              }))
               .after((obj, options) => ({
                 afterCalled: true,
                 isAwesomeOption: options.isAwesome,
@@ -78,10 +81,73 @@ describe('Factory', () => {
             expect(Factory.build('thing')).toEqual({
               afterCalled: true,
               isAwesomeOption: true,
-              wrapped: new Thing({
-                name: 'Thing 1',
-              }),
+              wrapped: {
+                wrapped: new Thing({
+                  name: 'Thing 1',
+                }),
+              },
             });
+          });
+        });
+
+        describe('when passed options', () => {
+          it('passes all options', () => {
+            Factory.define('thing')
+              .option('option1', 'option1')
+              .option('option2', 'option2')
+              .after((_, options) => options);
+
+            // Default
+            expect(Factory.build('thing')).toEqual({
+              option1: 'option1',
+              option2: 'option2',
+            });
+
+            // Override
+            expect(
+              Factory.build(
+                'thing',
+                {},
+                {
+                  option1: 'foo',
+                  option2: 'bar',
+                }
+              )
+            ).toEqual({
+              option1: 'foo',
+              option2: 'bar',
+            });
+
+            // Extra (!)
+            expect(
+              Factory.build(
+                'thing',
+                {},
+                {
+                  option1: 'foo',
+                  option2: 'bar',
+                  option3: 'baz',
+                }
+              )
+            ).toEqual({
+              option1: 'foo',
+              option2: 'bar',
+              option3: 'baz',
+            });
+          });
+
+          it('calls default option functions', () => {
+            const fn = jest.fn().mockReturnValue('default value');
+            Factory.define('thing')
+              .option('option', fn)
+              .attr('value', ['option'], (option) => option)
+              .after((obj, options) => ({ ...obj, ...options }));
+
+            expect(Factory.build('thing')).toEqual({
+              option: 'default value',
+              value: 'default value',
+            });
+            expect(fn).toHaveBeenCalled();
           });
         });
       });
@@ -634,6 +700,54 @@ describe('Factory', () => {
           'MADELINE'
         );
         expect(useCapsLockValues).toEqual([false, true]);
+      });
+
+      it('can depend on other options', () => {
+        factory
+          .option('option1', 'foo')
+          .option('option2', ['option1'], (option1) => option1 + 'bar')
+          .attr('value', ['option2'], (option2) => option2);
+
+        // Default values
+        expect(factory.attributes()).toHaveProperty('value', 'foobar');
+        // Override one
+        expect(factory.attributes({}, { option1: 'bar' })).toHaveProperty(
+          'value',
+          'barbar'
+        );
+        // Override two
+        expect(factory.attributes({}, { option2: 'specific' })).toHaveProperty(
+          'value',
+          'specific'
+        );
+      });
+
+      it('cannot depend on itself', () => {
+        const fn = jest.fn().mockReturnValue('default value');
+        factory
+          .option('option', ['option'], fn)
+          .attr('value', ['option'], (option) => option);
+
+        // Default values
+        expect(() => factory.attributes()).toThrow(/Maximum call stack/);
+        expect(fn).not.toHaveBeenCalled();
+        // Option set
+        expect(factory.attributes({}, { option: 'override' })).toHaveProperty(
+          'value',
+          'override'
+        );
+        expect(fn).not.toHaveBeenCalled();
+      });
+
+      it('cannot depend on an attribute', () => {
+        factory
+          .attr('baseAttr', 'base')
+          .option('option', ['baseAttr'], (attr) => attr)
+          .attr('value', ['option'], (option) => option);
+
+        expect(() => factory.attributes()).toThrow(
+          /Cannot read propert(y 'builder'|ies) of undefined/
+        );
       });
     });
   });
