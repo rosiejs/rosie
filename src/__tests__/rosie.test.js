@@ -147,7 +147,7 @@ describe('Factory', () => {
               option: 'default value',
               value: 'default value',
             });
-            expect(fn).toHaveBeenCalled();
+            expect(fn).toHaveBeenCalledTimes(1);
           });
         });
       });

@@ -307,6 +307,10 @@ class Factory {
    * @return {*}
    */
   build(attributes, options) {
+    // Precalculate options.
+    // Because options cannot depend on themselves or on attributes, subsequent calls to
+    // `this.options` will be idempotent and we can avoid re-running builders
+    options = this.options(options);
     const result = this.attributes(attributes, options);
     let retval = null;
 
@@ -318,7 +322,7 @@ class Factory {
     }
 
     for (let i = 0; i < this.callbacks.length; i++) {
-      const callbackResult = this.callbacks[i](retval, this.options(options));
+      const callbackResult = this.callbacks[i](retval, options);
       retval = callbackResult || retval;
     }
     return retval;
