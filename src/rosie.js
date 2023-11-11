@@ -205,13 +205,6 @@ class Factory {
    * @return {*}
    */
   _attrValue(attr, attributes, options, stack) {
-    if (
-      !this._alwaysCallBuilder(attr) &&
-      Object.prototype.hasOwnProperty.call(attributes, attr)
-    ) {
-      return attributes[attr];
-    }
-
     const value = this._buildWithDependencies(this._attrs[attr], (dep) => {
       if (Object.prototype.hasOwnProperty.call(options, dep)) {
         return options[dep];
@@ -225,6 +218,40 @@ class Factory {
         return this._attrValue(dep, attributes, options, stack.concat([dep]));
       }
     });
+
+    const deepMerge = (base, inputObj) => {
+      const result = Array.isArray(base) ? [...base] : { ...base };
+      for (let key in inputObj) {
+          if (
+              base[key] === undefined ||
+              typeof base[key] != 'object' ||
+              (typeof base[key] === 'object' &&
+                  typeof inputObj[key] != 'object')
+          ) {
+              result[key] = inputObj[key];
+          }
+          if (
+              typeof base[key] === 'object' &&
+              typeof inputObj[key] === 'object'
+          ) {
+              result[key] = deepMerge(base[key], inputObj[key]);
+          }
+      }
+      return result;
+  };
+
+    if (
+      !this._alwaysCallBuilder(attr) &&
+      Object.prototype.hasOwnProperty.call(attributes, attr)
+    ) {
+      if(value.constructor.name == "Array" || value.constructor.name == "Object"){
+        attributes[attr] = deepMerge(value,attributes[attr])
+        return value
+      }
+        else{
+          return attributes[attr];      
+        }
+    }
     attributes[attr] = value;
     return value;
   }
