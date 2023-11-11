@@ -232,6 +232,74 @@ export default new Factory().extend(Game).attrs({
 });
 ```
 
+## Nested Factories
+
+You can use the `extend` method with a second argument to add the factory as a nested factory instead. The attributes and options of the nested factory are exposed on the parent as nested attributes, using the `attribute__childAttr` syntax (those are double underscores). You can use this with both registered and unregistered factories.
+
+```js
+// factories/registered-game-with-player.js
+import { Factory } from 'rosie';
+
+Factory.define('player').attrs({
+  name: 'Player 1',
+  id: 1,
+});
+
+Factory.define('game-with-player').extend('game').extend('player', 'player');
+// Output of Factory.build('game-with-player'):
+// {
+//   id: 1,
+//   is_over: false,
+//   player: {
+//     id: 1,
+//     name: 'Player 1'
+//   }
+// }
+
+// Output of Factory.build('game-with-player',
+//                         {player__id: 45, player__name: 'Player 2'}):
+// {
+//   id: 1,
+//   is_over: false,
+//   player: {
+//     id: 45,
+//     name: 'Player 2'
+//   }
+// }
+```
+
+```js
+// factories/unregistered-game-with-player.js
+import { Factory } from 'rosie';
+import Game from './game';
+
+export const Player = new Factory().attrs({
+  name: 'Player 1',
+  id: 1,
+});
+
+export default new Factory().extend(Game).extend(Player, 'player');
+// Output of build():
+// {
+//   id: 1,
+//   is_over: false,
+//   player: {
+//     id: 1,
+//     name: 'Player 1'
+//   }
+// }
+
+// Output of build({player__id: 45, player__name: 'Player 2'}):
+// {
+//   id: 1,
+//   is_over: false,
+//   player: {
+//     id: 45,
+//     name: 'Player 2'
+//   }
+// }
+```
+
 ## Rosie API
 
 As stated above the rosie factory signatures can be broken into factory definition and object creation.

@@ -380,6 +380,143 @@ describe('Factory', () => {
       });
     });
 
+    describe('as an attribute, with registered factories', () => {
+      beforeEach(() => {
+        Factory.define('thing', Thing)
+          .attr('name', 'Thing 1')
+          .sequence('count')
+          .after((obj) => {
+            obj.afterCalled = true;
+          });
+        Factory.define('anotherThing')
+          .extend('thing', 'thing')
+          .attr('title', 'Title 1');
+        Factory.define('differentThing', Thingy)
+          .extend('thing', 'thing')
+          .attr('name', 'Different Thing');
+        Factory.define('optionThing')
+          .extend('thing')
+          .attr('unrelated__attr', true)
+          .option('numFeathers', 3)
+          .attr('feathers', ['numFeathers'], (numFeathers) => {
+            return new Array(numFeathers).fill('feather');
+          });
+        Factory.define('differentOptionThing', Thingy)
+          .extend('optionThing', 'thing')
+          .attr('name', 'Different Option Thing');
+      });
+
+      it('should not extend the constructor', () => {
+        expect(Factory.build('anotherThing') instanceof Thing).toBe(false);
+        expect(Factory.build('differentThing') instanceof Thingy).toBe(true);
+      });
+
+      it('should extend attributes as nested attributes', () => {
+        expect(Factory.build('anotherThing')).toEqual(
+          expect.objectContaining({
+            title: 'Title 1',
+            thing: {
+              count: 1,
+              name: 'Thing 1',
+              afterCalled: true,
+            },
+          })
+        );
+
+        expect(
+          Factory.build('differentThing', { thing__name: 'New Name' })
+        ).toEqual(
+          expect.objectContaining({
+            name: 'Different Thing',
+            thing: {
+              count: 2,
+              name: 'New Name',
+              afterCalled: true,
+            },
+          })
+        );
+      });
+
+      it('should extend options as nested options', () => {
+        expect(Factory.build('differentOptionThing')).toEqual(
+          expect.objectContaining({
+            name: 'Different Option Thing',
+            thing: {
+              unrelated__attr: true,
+              count: 1,
+              name: 'Thing 1',
+              afterCalled: true,
+              feathers: ['feather', 'feather', 'feather'],
+            },
+          })
+        );
+        expect(
+          Factory.build('differentOptionThing', {}, { thing__numFeathers: 4 })
+        ).toEqual(
+          expect.objectContaining({
+            name: 'Different Option Thing',
+            thing: {
+              unrelated__attr: true,
+              count: 2,
+              name: 'Thing 1',
+              afterCalled: true,
+              feathers: ['feather', 'feather', 'feather', 'feather'],
+            },
+          })
+        );
+      });
+
+      it('should not remove unrelated attributes after build', () => {
+        expect(Factory.build('differentOptionThing')).toEqual(
+          expect.objectContaining({
+            name: 'Different Option Thing',
+            thing: {
+              unrelated__attr: true,
+              count: 1,
+              name: 'Thing 1',
+              afterCalled: true,
+              feathers: ['feather', 'feather', 'feather'],
+            },
+          })
+        );
+      });
+
+      it('should not extend callbacks', () => {
+        expect(Factory.build('anotherThing').afterCalled).toBe(undefined);
+      });
+
+      it('should not override attributes', () => {
+        expect(Factory.build('differentThing').name).toBe('Different Thing');
+        expect(Factory.build('differentThing').thing.name).toBe('Thing 1');
+      });
+
+      it('should reset sequences', () => {
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 1 })
+        );
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 2 })
+        );
+        Factory.reset('thing');
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 1 })
+        );
+      });
+
+      it('should be reset by resetAll', () => {
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 1 })
+        );
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 2 })
+        );
+        Factory.resetAll();
+        expect(Factory.build('thing')).toEqual(
+          expect.objectContaining({ count: 1 })
+        );
+      });
+    });
+
     describe('with unregistered factories', () => {
       let ParentFactory;
       let ChildFactory;
@@ -420,6 +557,91 @@ describe('Factory', () => {
 
       it('should override attributes', () => {
         expect(SiblingFactory.build().name).toBe('Sibling');
+      });
+    });
+
+    describe('as an attribute, with unregistered factories', () => {
+      let ParentFactory;
+      let ChildFactory;
+      let SiblingFactory;
+      let OptionFactory;
+      let ChildOptionFactory;
+
+      beforeEach(() => {
+        ParentFactory = new Factory(Thing)
+          .attr('name', 'Parent')
+          .after((obj) => {
+            obj.afterCalled = true;
+          });
+        ChildFactory = new Factory()
+          .extend(ParentFactory, 'parent')
+          .attr('title', 'Child');
+        SiblingFactory = new Factory(Thingy)
+          .extend(ParentFactory, 'parent')
+          .attr('name', 'Sibling');
+        OptionFactory = new Factory(Thing)
+          .option('numFeathers', 3)
+          .attr('feathers', ['numFeathers'], (numFeathers) => {
+            return new Array(numFeathers).fill('feather');
+          });
+
+        ChildOptionFactory = new Factory(Thingy)
+          .extend(OptionFactory, 'thing')
+          .attr('name', 'Child');
+      });
+
+      it('should not extend the constructor', () => {
+        expect(ChildFactory.build() instanceof Thing).toBe(false);
+        expect(SiblingFactory.build() instanceof Thingy).toBe(true);
+      });
+
+      it('should extend attributes as nested attributes', () => {
+        expect(ChildFactory.build()).toEqual(
+          expect.objectContaining({
+            title: 'Child',
+            parent: {
+              name: 'Parent',
+              afterCalled: true,
+            },
+          })
+        );
+        expect(SiblingFactory.build({ parent__name: 'Mom' })).toEqual(
+          expect.objectContaining({
+            name: 'Sibling',
+            parent: {
+              name: 'Mom',
+              afterCalled: true,
+            },
+          })
+        );
+      });
+
+      it('should not extend callbacks', () => {
+        expect(SiblingFactory.build().afterCalled).toBe(undefined);
+      });
+
+      it('should not override attributes', () => {
+        expect(SiblingFactory.build().name).toBe('Sibling');
+        expect(SiblingFactory.build().parent.name).toBe('Parent');
+      });
+
+      it('should extend options as nested options', () => {
+        expect(ChildOptionFactory.build()).toEqual(
+          expect.objectContaining({
+            name: 'Child',
+            thing: {
+              feathers: ['feather', 'feather', 'feather'],
+            },
+          })
+        );
+        expect(ChildOptionFactory.build({}, { thing__numFeathers: 1 })).toEqual(
+          expect.objectContaining({
+            name: 'Child',
+            thing: {
+              feathers: ['feather'],
+            },
+          })
+        );
       });
     });
   });
