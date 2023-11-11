@@ -325,8 +325,8 @@ beforeEach(() => {
 
 1.  Fork it
 1.  Create your feature branch (`git checkout -b my-new-feature`)
-1.  Install the test dependencies (`yarn install` - requires NodeJS and yarn)
-1.  Make your changes and make sure the tests pass (`yarn test`)
+1.  Install the test dependencies (`npm install` - requires NodeJS)
+1.  Make your changes and make sure the tests pass (`npm test`)
 1.  Commit your changes (`git commit -am 'Added some feature'`)
 1.  Push to the branch (`git push origin my-new-feature`)
 1.  Create new Pull Request
