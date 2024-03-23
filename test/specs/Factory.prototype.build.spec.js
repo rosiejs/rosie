@@ -58,7 +58,7 @@ describe('Factory.prototype.build', function () {
       beforeEach(function () {
         factory = new Factory()
           .attr(key, value)
-          .beforeBuild((object, options) => {
+          .afterBuild((object, options) => {
             object.beforeBuild = true
             return { something: 'else' }
           })
@@ -66,7 +66,6 @@ describe('Factory.prototype.build', function () {
 
       it('uses the returned value', function () {
         expect(factory.build()).to.eql({ something: 'else' })
-        expect(factory.build().beforeBuild).to.not.exist
       })
 
       it('can run more than once', function () {

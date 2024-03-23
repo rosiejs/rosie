@@ -4,11 +4,17 @@ const { faker } = require('@faker-js/faker')
 const sinon = require('sinon')
 
 describe('not sure yet', function () {
+  const tick = () => new Promise((res) => setImmediate(res))
+
   class BaseModel {
     constructor (attrs) {
       for (const attr in attrs) {
         this[attr] = attrs[attr]
       }
+    }
+
+    async save () {
+      return tick().then(() => this)
     }
   }
 
@@ -23,7 +29,7 @@ describe('not sure yet', function () {
       .define('Record')
       .attr('createdAt', () => faker.date.recent())
       .attr('updatedAt', () => faker.date.recent())
-      .onCreate(() => Promise.resolve())
+      .onCreate((record) => record.save())
 
     Factory
       .define('Post', Post)

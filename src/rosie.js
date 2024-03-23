@@ -367,11 +367,11 @@ class Factory {
   build(attributes, options) {
     attributes = Factory.util.extend({}, attributes)
 
-    return Factory.util.nextHook(this.beforeBuildHooks, attributes, options, (attributes) => {
+    return Factory.util.nextHook(0, this.beforeBuildHooks, attributes, options, (attributes) => {
       let result = this.attributes(attributes, options)
       if (this.construct) result = new this.construct(result)
 
-      return Factory.util.nextHook(this.afterBuildHooks, result, options, (maybeResult) => {
+      return Factory.util.nextHook(0, this.afterBuildHooks, result, options, (maybeResult) => {
         return maybeResult || result
       })
     })
@@ -405,12 +405,12 @@ class Factory {
     const maybePromise = this.build(attributes, options)
 
     return Factory.util.after(maybePromise, (object) => {
-      return Factory.util.nextHook(this.beforeCreateHooks, object, options, (maybeResult) => {
+      return Factory.util.nextHook(0, this.beforeCreateHooks, object, options, (maybeResult) => {
         object = maybeResult || object
         const maybePromise = this.createHandler ? this.createHandler(object, options) : null
         return Factory.util.after(maybePromise, (maybeResult) => {
           object = maybeResult || object
-          return Factory.util.nextHook(this.afterCreateHooks, object, options, (maybeResult) => {
+          return Factory.util.nextHook(0, this.afterCreateHooks, object, options, (maybeResult) => {
             return maybeResult || object
           })
         })
@@ -517,14 +517,14 @@ Factory.util = (function () {
       return Factory.util.isPromise(maybePromise) ? maybePromise.then(next) : next(maybePromise)
     },
 
-    nextHook: function nextHook(hooks, object, options, next) {
-      const hook = hooks.shift()
+    nextHook: function nextHook(index, hooks, object, options, next) {
+      const hook = hooks[index]
       if (!hook) return next(object)
 
       const maybePromise = hook(object, options)
       return Factory.util.after(maybePromise, (maybeResult) => {
         object = maybeResult || object
-        return Factory.util.nextHook(hooks, object, options, next)
+        return Factory.util.nextHook(++index, hooks, object, options, next)
       })
     }
   }
