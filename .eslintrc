@@ -1,18 +1,44 @@
 {
-  "extends": ["eslint:recommended", "prettier"],
-  "plugins": ["jest"],
+  "env": {
+    "es2021": true,
+    "node": true,
+    "mocha": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": [
+    "mocha",
+    "prettier"
+  ],
   "parserOptions": {
-    "ecmaVersion": 2015
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "rules": {
+    "prettier/prettier": ["error", {
+      "semi": false
+    }],
+    "no-unused-vars": "warn",
+    "no-console": "off",
+    "mocha/no-exclusive-tests": "error",
+    "mocha/no-pending-tests": "warn",
+    "mocha/no-skipped-tests": "warn",
+    "semi": ["error", "never"],
+    "comma-dangle": ["error", "never"],
+    "function-call-argument-newline": ["error", "consistent"],
+    "function-paren-newline": ["error", "consistent"],
+    "indent": ["error", 2, { "SwitchCase": 1 }]
   },
   "overrides": [
     {
-      "files": ["**/*.test.js"],
-      "extends": ["plugin:jest/recommended"],
+      "files": ["test/**/*.js"],
       "env": {
-        "jest": true
+        "mocha": true
       },
       "rules": {
-        "jest/consistent-test-it": "error"
+        "no-unused-expressions": "off"
       }
     }
   ]

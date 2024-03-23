@@ -1,0 +1,20 @@
+const { Factory } = require('../../')
+const { expect } = require('chai')
+const { faker } = require('@faker-js/faker')
+const sinon = require('sinon')
+
+describe('Factory.prototype.afterBuild', function () {
+  let factory, spyOne, spyTwo
+
+  beforeEach(function () {
+    factory = new Factory()
+    spyOne = sinon.spy(() => {})
+    spyTwo = sinon.spy(() => {})
+    factory.afterBuild(spyOne)
+    factory.afterBuild(spyTwo)
+  })
+
+  it('adds a method to the list of before create methods', function () {
+    expect(factory.afterBuildHooks).to.eql([spyOne, spyTwo])
+  })
+})
