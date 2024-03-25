@@ -1,18 +1,28 @@
 {
-  "extends": ["eslint:recommended", "prettier"],
-  "plugins": ["jest"],
+  "env": {
+    "es2021": true,
+    "node": true,
+    "mocha": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:prettier/recommended"
+  ],
+  "plugins": [
+    "mocha",
+    "prettier"
+  ],
   "parserOptions": {
     "ecmaVersion": 2018
   },
   "overrides": [
     {
-      "files": ["**/*.test.js"],
-      "extends": ["plugin:jest/recommended"],
+      "files": ["test/**/*.js"],
       "env": {
-        "jest": true
+        "mocha": true
       },
       "rules": {
-        "jest/consistent-test-it": "error"
+        "no-unused-expressions": "off"
       }
     }
   ]

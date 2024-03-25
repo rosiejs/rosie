@@ -1,194 +1,384 @@
-# Rosie
+<a href="http://promisesaplus.com/">
+  <img src="https://promises-aplus.github.io/promises-spec/assets/logo-small.png" align="right" valign="top" alt="Promises/A+ logo" />
+</a>
 
-![Rosie the Riveter](https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/We_Can_Do_It%21.jpg/220px-We_Can_Do_It%21.jpg)
+# Rosie-As-Promised
 
-Rosie is a factory for building JavaScript objects, mostly useful for setting up test data. It is inspired by [factory_bot](https://github.com/thoughtbot/factory_bot).
+Rosie-As-Promised is based on [RosieJS](https://github.com/rosiejs/rosie) and is comptabile with the RosieJS API.  Rosie is inspired by [factory_girl](https://github.com/thoughtbot/factory_girl).
 
-To use Rosie you first define a _factory_. The _factory_ is defined in terms of _attributes_, _sequences_, _options_, _callbacks_, and can inherit from other factories. Once the factory is defined you use it to build _objects_.
 
-## Usage
+Rosie-As-Promised is a factory for building JavaScript objects, mostly useful for setting up test data. Rosie-As-Promised provides pre and post lifecycle hooks for the build and create steps. These lifecycle hooks can be asynchronous. However, Rosie-As-Promised will remain synchronous until an asynchronous hooks is encountered. Meaning, Rosie-As-Promised maintains compatability with the RosieJS interface by staying synchronous until and asynchronous step is met. All lifecycle hooks can be defined as synchronous or asynchronous. Rosie-As-Promised will only return a promise if one of the lifecycle hooks returns a promise.
 
-There are two phases of use:
+To use Rosie-As-Promised you first define a _factory_. The _factory_ is defined in terms of _attributes_, _sequences_, _options_, and _hooks_. A factory can inherit from other factories. Once the factory is defined you use it to build _objects_.
 
-1.  Factory definition
-2.  Object building
+## Contents
+- [All Options Example](#all-options-example)
+- [Defining a Factory](#factory)
+  - [New](#new)
+  - [Attribute](#attribute)
+  - [Attributes in bulk](#attributes-in-bulk)
+  - [Sequential Attribute](#sequential-attributes)
+  - [Build Options](#build-options)
+  - [Attribute Dependencies](#attribute-dependencies)
+  - [Extending Factories](#extending-factories)
 
-**Factory Definition:** Define your factory, giving it a name and optionally a constructor function (`game` in this example):
+- [Using a factory](#using-a-facttry)
 
-```js
-Factory.define('game')
-  .sequence('id')
-  .attr('is_over', false)
-  .attr('created_at', () => new Date())
-  .attr('random_seed', () => Math.random())
+### Factory
 
-  // Default to two players. If players were given, fill in
-  // whatever attributes might be missing.
-  .attr('players', ['players'], (players) => {
-    if (!players) {
-      players = [{}, {}];
-    }
-    return players.map((data) => Factory.attributes('player', data));
-  });
+#### New
 
-Factory.define('player')
-  .sequence('id')
-  .sequence('name', (i) => {
-    return 'player' + i;
-  })
+Factories are defined by constructing a factory instance. Factories can also be registered view [Factory.define](#define) which allows access to the factory instance through convience methods.
 
-  // Define `position` to depend on `id`.
-  .attr('position', ['id'], (id) => {
-    const positions = ['pitcher', '1st base', '2nd base', '3rd base'];
-    return positions[id % positions.length];
-  });
-
-Factory.define('disabled-player').extend('player').attr('state', 'disabled');
+```javascript
+// anonymous
+const gameFactory = new Factory() // factory
+game.attributes() // {}
 ```
 
-**Object Building:** Build an object, passing in attributes that you want to override:
+A Factory can be defined with a constructor
 
-```js
-const game = Factory.build('game', { is_over: true });
-// Built object (note scores are random):
-//{
-//    id:           1,
-//    is_over:      true,   // overriden when building
-//    created_at:   Fri Apr 15 2011 12:02:25 GMT-0400 (EDT),
-//    random_seed:  0.8999513240996748,
-//    players: [
-//                {id: 1, name:'Player 1'},
-//                {id: 2, name:'Player 2'}
-//    ]
-//}
+```javascript
+class Game {}
+
+// anonymous
+const gameFactory = new Factory(Game)
+game.attributes() instanceOf Object // true
+game.build() instanceOf Game // true
 ```
 
-For a factory with a constructor, if you want just the attributes:
+#### Attribute
 
-```js
-Factory.attributes('game'); // return just the attributes
+```javascript
+const gameFactory = new Factory()
+  .attr('isOver', false)
+  .attr('createdAt', () => new Date())
+
+game.attributes() // { isOver: false, createdAt: [date] }
 ```
 
-### Programmatic Generation of Attributes
+#### Attributes in Bulk
 
-You can specify options that are used to programmatically generate the attributes:
-
-```js
-const moment = require('moment');
-
-Factory.define('matches')
-  .attr('seasonStart', '2016-01-01')
-  .option('numMatches', 2)
-  .attr('matches', ['numMatches', 'seasonStart'], (numMatches, seasonStart) => {
-    const matches = [];
-    for (const i = 1; i <= numMatches; i++) {
-      matches.push({
-        matchDate: moment(seasonStart).add(i, 'week').format('YYYY-MM-DD'),
-        homeScore: Math.floor(Math.random() * 5),
-        awayScore: Math.floor(Math.random() * 5),
-      });
-    }
-    return matches;
-  });
-
-Factory.build('matches', { seasonStart: '2016-03-12' }, { numMatches: 3 });
-// Built object (note scores are random):
-//{
-//  seasonStart: '2016-03-12',
-//  matches: [
-//    { matchDate: '2016-03-19', homeScore: 3, awayScore: 1 },
-//    { matchDate: '2016-03-26', homeScore: 0, awayScore: 4 },
-//    { matchDate: '2016-04-02', homeScore: 1, awayScore: 0 }
-//  ]
-//}
-```
-
-In the example `numMatches` is defined as an `option`, not as an `attribute`. Therefore `numMatches` is not part of the output, it is only used to generate the `matches` array.
-
-In the same example `seasonStart` is defined as an `attribute`, therefore it appears in the output, and can also be used in the generator function that creates the `matches` array.
-
-### Batch Specification of Attributes
-
-The convenience function `attrs` simplifies the common case of specifying multiple attributes in a batch. Rewriting the `game` example from above:
-
-```js
-Factory.define('game')
-  .sequence('id')
+```javascript
+const gameFactory = new Factory()
   .attrs({
-    is_over: false,
-    created_at: () => new Date(),
-    random_seed: () => Math.random(),
+    isOver: false,
+    createdAt: () => new Date()
   })
-  .attr('players', ['players'], (players) => {
-    /* etc. */
-  });
+
+game.attributes() // { isOver: false, createdAt: [date] }
 ```
 
-### Post Build Callback
+#### Sequential Attributes
 
-You can also define a callback function to be run after building an object:
-
-```js
-Factory.define('coach')
-  .option('buildPlayer', false)
+```javascript
+const gameFactory = new Factory()
   .sequence('id')
-  .attr('players', ['id', 'buildPlayer'], (id, buildPlayer) => {
-    if (buildPlayer) {
-      return [Factory.build('player', { coach_id: id })];
-    }
-  })
-  .after((coach, options) => {
-    if (options.buildPlayer) {
-      console.log('built player:', coach.players[0]);
-    }
-  });
+  .sequence('slug', (n) => `game-${id}`)
 
-Factory.build('coach', {}, { buildPlayer: true });
+game.attributes() // { id: 1, slug: 'game-1' }
 ```
+
+#### Build Options
+
+You can specify options that are used to programmatically generate attributes. `numberOfPlayers` is defined as an option, not as an attribute. Therefore `numberOfPlayers` is not part of the output, it is only used to generate the `players` array.
+
+```javascript
+const playerFactory = new Factory()
+  .attr('position', () => {
+    const positions = ['pitcher', 'catcher']
+    const index = Math.floor(Math.random() * postitions.length)
+    return positions[index]
+  })
+
+const gameFactory = new Factory()
+  .option('numberOfPlayers', 2)
+  .attr('players', ['numberOfPlayers'], (numberOfPlayers) => {
+    const players = []
+    for (let i = 0; i < numberOfPlayers; i++) {
+      players.push(player.attributes())
+    }
+    return players
+  })
+
+game.attributes() // { players: [{ position: /* 'pitcher' or 'catcher' */ }, { position: /* 'pitcher' or 'catcher' */ }] }
+```
+
+#### Attribute Dependencies
+
+In this updated example, `id` is defined as a sequence attribute, therefore it appears in the output, and can also be used in the generator function that creates the `players` array.
+
+```javascript
+const playerFactory = new Factory()
+  .sequence('id')
+  .attr('position', ['id'], (id) => {
+    const positions = ['pitcher', 'catcher']
+    const index = id % 2
+    return positions[index]
+  })
+
+const gameFactory = new Factory()
+  .attr('players', () => {
+    return [
+      player.attributes(),
+      player.attributes()
+    ]
+  })
+
+gameFactory.attributes() // { players: [{ id: 1, position: 'pitcher' }, { id: 2, position: 'catcher' }] }
+```
+
+Attributes can depend on override data passed into `attributes`, `build`, and `create`.
+
+```javascript
+const playerFactory = new Factory()
+  .sequence('id')
+  .attr('position', ['id'], (id) => {
+    const positions = ['pitcher', 'catcher', '1st base', '2nd base', '3rd base', 'short stop']
+    const index = 
+    return positions[id % positions.length]
+  })
+
+const gameFactory = new Factory()
+  .attr('players', ['players'], (players) => {
+    return players.map(player => Factory.attributes(player))
+  })
+
+gameFactory.attributes({ players: [{ position: 'pitcher' }, { position: 'short stop' }] }) // { players: [{ id: 1, position: 'pitcher' }, { id: 2, position: 'short stop' }] }
+```
+
+#### Extending a Factory
+
+Extend a factory to share configuration or to create specific factories
+
+```javascript
+const playerFactory = new Factory()
+  .sequence('id')
+  .attr('isRetired', false)
+  .attr('position', ['id'], (id) => {
+    const positions = ['pitcher', 'catcher', '1st base', '2nd base', '3rd base', 'short stop']
+    const index = 
+    return positions[id % positions.length]
+  })
+
+  const retiredPlayerFactory = new Factory()
+    .extend(player)
+    .attr('isRetired', true)
+
+playerFactory.attributes() // { id: 1, isRetired: false, position: 'catcher' }
+retiredPlayerFactory.attributes() // { id: 1, isRetired: true, position: 'catcher' }
+```
+-----
+
+### Using a Factory
+
+```javascript
+class Player {}
+
+const playerFactory = new Factory(Player)
+  .sequence('id')
+  .attr('isRetired', false)
+  .attr('position', ['id'], (id) => {
+    const positions = ['pitcher', 'catcher', '1st base', '2nd base', '3rd base', 'short stop']
+    const index = 
+    return positions[id % positions.length]
+  })
+```
+
+#### Attributes
+
+```javascript
+playerFactory.attributes()          // { id: 1, isRetired: false, position: 'catcher' }
+playerFactory.attributes({ id: 4 }) // { id: 4, isRetired: false, position: '3rd base' }
+```
+
+#### Build
+
+```javascript
+playerFactory.build()          // Player { id: 1, isRetired: false, position: 'catcher' }
+playerFactory.build({ id: 4 }) // Player { id: 4, isRetired: false, position: '3rd base' }
+```
+
+#### Create
+
+The `onCreateHandler` is registered in the factory definition. The `.create` method exists as an inflection point to allow for [beforeCreate]() and [afterCreate]() hooks to be registered.
+
+```javascript
+playerFactory.onCreate((object, options) => {
+  // perform sync or async work
+  object.createLifeCycleWorkPerformedAt = new Date()
+})
+
+await playerFactory.create()                    // Player { id: 3, isRetired: false, position: '2nd base', createLifeCycleWorkPerformedAt: [date] }
+await playerFactory.create({ isRetired: true }) // Player { id: 4, isRetired: true, position: '3rd base', createLifeCycleWorkPerformedAt: [date] }
+```
+
+### Lifecycle Hooks
 
 Multiple callbacks can be registered, and they will be executed in the order they are registered. The callbacks can manipulate the built object before it is returned to the callee.
 
 If the callback doesn't return anything, rosie will return build object as final result. If the callback returns a value, rosie will use that as final result instead.
 
-### Associate a Factory with an existing Class
+#### beforeBuild
+chain method to register hooks to run before objects are built
 
-This is an advanced use case that you can probably happily ignore, but store this away in case you need it.
+```javascript
+const teamFactory = new Factory()
+  .sequence('id')
+  .sequence('name', (n) => `team-${n}`)
 
-When you define a factory you can optionally provide a class definition, and anything built by the factory will be passed through the constructor of the provided class.
+const playerFactory
+  .sequence('teamId')
+  .attr('team', ['teamId'], (teamId) => team.attributes({ id: teamId }))
+  .beforeBuild((attributes, options) => {
+    if (attributes?.team?.id) attributes.teamId = attributes.team.id
+  })
 
-Specifically, the output of `.build` is used as the input to the constructor function, so the returned object is an instance of the specified class:
-
-```js
-class SimpleClass {
-  constructor(args) {
-    this.moops = 'correct';
-    this.args = args;
-  }
-
-  isMoopsCorrect() {
-    return this.moops;
-  }
-}
-
-testFactory = Factory.define('test', SimpleClass).attr('some_var', 4);
-
-testInstance = testFactory.build({ stuff: 2 });
-console.log(JSON.stringify(testInstance, {}, 2));
-// Output:
-// {
-//   "moops": "correct",
-//   "args": {
-//     "stuff": 2,
-//     "some_var": 4
-//   }
-// }
-
-console.log(testInstance.isMoopsCorrect());
-// Output:
-// correct
+const team = teamFactory.build({ id: 12 })
+player.build({ team }) // Player { id: 1, isRetired: false, position: 'catcher', teamId: 12, team: { id: 12, name: 'team-12' } }
 ```
 
-Mind. Blown.
+#### after
+
+alias for [afterBuild](#afterbuild) to maintain backwards compatibility 
+
+#### afterBuild
+chain method to register hooks to run after objects are built
+
+```javascript
+const playerFactory
+  .sequence('teamId')
+
+const teamFactory = new Factory()
+  .sequence('id')
+  .sequence('name', (n) => `team-${n}`)
+  .attrs('players', ['id'], (teamId) => {
+    const count = Math.floor(Math.random() * 4) + 1 // up to 4
+    const players = []
+    for (let i=0; i<count; i++){
+      players.push(playerFactory.build(( teamId ))
+    }
+    return players
+  })
+  .afterbuild((object, options) => {
+    object.playerCount = object.players.length
+  })
+
+teamFactory.build() // { id: 1, name: 'team-1', players: [ { teamId: 1, /* ... */}, { teamId: 1, /* ... */}, { teamId: 1, /* ... */} ], playerCount: 3 }
+```
+
+#### beforeCreate
+chain method to register hooks to run before the create hook is called
+
+```javascript
+async function isSlugUnique (slug) {
+  // check data store for uniqueness
+}
+
+const teamFactory = new Factory()
+  .sequence('id')
+  .sequence('name', 'blue jays')
+  .sequence('slug', ['name'], (name) => name.slice(0, 4))
+  .beforeCreate(async (object, options) => {
+    let i = 0
+    let strSlug = object.slug
+
+    while (await isSlugUnique(strSlug) === false) {
+      strSlug = object.slug + `-${i++}`
+    }
+
+    object.slug = strSlug
+  })
+
+await teamFactory.create({ name: 'blue hornets'}) // { ..., slug: 'blue', ... }
+await teamFactory.create({ name: 'blue birds' })  // { ..., slug: 'blue-0', ... }
+```
+
+#### onCreate
+builder method to register the "create" functionality for the factory
+
+```javascript
+const dbRecordFactory = new Factory()
+  .onCreate(async (object, options) => {
+    object = await persistToDataStore(object)
+  })
+
+const teamFactory = new Factory()
+  .extend(dbRecordFactory)
+  .sequence('name', 'blue jays')
+
+await teamFactory.create({ name: 'blue hornets'}) // { id: 1, name: 'blue hornets', createdAt: [date], updatedAt: [date], _version: 1 }
+```
+
+#### afterCreate
+factory builder chain method to register hooks to run after the onCreateHandler is called
+
+```javascript
+const gameFactory = new Factory()
+  .extend(dbRecordFactory)
+  .attr('matchDate', () => new Date())
+  .attr('homeTeamId', () => Factory.create('team').then(r => r.id)
+  .attr('awayTeamId', () => Factory.create('team').then(r => r.id)
+  .afterCreate((object, options) => {
+    object = await hydrateRelationships(object)
+  })
+
+await gameFactory.create() // Game { id: 1, ..., homeTeam: Team { players: [ Player {}, Player {} ] }, awayTeam: Team { players: [ Player {}, Player {} ] } }
+```
+
+### Convenience Methods
+
+```javascript
+class Game {}
+```
+
+#### Factory.define
+
+```javascript
+Factory.define('Game', Game)
+// is equivalent to
+Factory.factories['Game'] = new Factory(Game)
+```
+
+#### Factory.attributes
+
+```javascript
+Factory.attributes('Game', attributes, options)
+// is equivalent to
+Factory.factories['Game'].attributes(attributes, options)
+```
+
+#### Factory.build
+
+```javascript
+Factory.build('Game', attributes, options)
+// is equivalent to
+Factory.factories['Game'].build(attributes, options)
+```
+
+#### Factory.buildList
+
+```javascript
+Factory.buildList('Game', number, attributes, options)
+// is equivalent to
+Factory.factories['Game'].buildList(number, attributes, options)
+```
+
+#### Factory.create
+
+```javascript
+Factory.create('Game', attributes, options)
+// is equivalent to
+Factory.factories['Game'].create(attributes, options)
+```
+
+#### Factory.createList
+
+```javascript
+Factory.createList('Game', number, attributes, options)
+// is equivalent to
+Factory.factories['Game'].createList(number, attributes, options)
+```
 
 ## Usage in Node.js
 
@@ -197,7 +387,11 @@ To use Rosie in node, you'll need to import it first:
 ```js
 import { Factory } from 'rosie';
 // or with `require`
-const Factory = require('rosie').Factory;
+const Factory = require('rosie').Factory
+
+require('./factories') // folder with factory defintions
+
+module.exports { Factory }
 ```
 
 You might also choose to use unregistered factories, as it fits better with node's module pattern:
