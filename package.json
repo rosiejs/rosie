@@ -34,7 +34,7 @@
   },
   "main": "src/rosie.js",
   "scripts": {
-    "-pretest": "eslint src test/**/*.js && prettier-check src/rosie.js test/**/*.js README.md",
+    "pretest": "eslint src test/**/*.js && prettier-check src/rosie.js test/**/*.js README.md",
     "test": "yarn mocha --config test/mocha.conf.js",
     "test:inspect": "node inspect $(yarn bin mocha) --config test/mocha.conf.js",
     "watch": "yarn test --watch"

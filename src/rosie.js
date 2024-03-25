@@ -7,7 +7,7 @@
  * @class
  */
 class Factory {
-  constructor(constructor) {
+  constructor (constructor) {
     this.construct = constructor
     this._attrs = {}
     this.opts = {}
@@ -59,7 +59,7 @@ class Factory {
    * @param {*=} value
    * @return {Factory}
    */
-  attr(attr, dependencies, value) {
+  attr (attr, dependencies, value) {
     var builder
     if (arguments.length === 2) {
       value = dependencies
@@ -86,7 +86,7 @@ class Factory {
    * @param {object} attributes
    * @return {Factory}
    */
-  attrs(attributes) {
+  attrs (attributes) {
     for (var attr in attributes) {
       if (Factory.util.hasOwnProp(attributes, attr)) {
         this.attr(attr, attributes[attr])
@@ -123,7 +123,7 @@ class Factory {
    * @param {*=} value
    * @return {Factory}
    */
-  option(opt, dependencies, value) {
+  option (opt, dependencies, value) {
     var builder
     if (arguments.length === 2) {
       value = dependencies
@@ -153,7 +153,7 @@ class Factory {
    * @param {function(number): *=} builder
    * @return {Factory}
    */
-  sequence(attr, dependencies, builder) {
+  sequence (attr, dependencies, builder) {
     var factory = this
 
     if (arguments.length === 2) {
@@ -182,7 +182,7 @@ class Factory {
    * @param {function(object, object=)} callback
    * @return {Factory}
    */
-  beforeBuild(hook) {
+  beforeBuild (hook) {
     this.beforeBuildHooks.push(hook)
     return this
   }
@@ -195,8 +195,16 @@ class Factory {
    * @param {function(object, object=)} callback
    * @return {Factory}
    */
-  afterBuild(hook) {
+  afterBuild (hook) {
     this.afterBuildHooks.push(hook)
+    return this
+  }
+
+  /**
+   * Backwards compatibility alias for afterBuild
+   */
+  after (...args) {
+    this.afterBuild(...args)
     return this
   }
 
@@ -207,7 +215,7 @@ class Factory {
    * @param {function(object, object=)} callback
    * @return {Factory}
    */
-  beforeCreate(callback) {
+  beforeCreate (callback) {
     this.beforeCreateHooks.push(callback)
     return this
   }
@@ -220,7 +228,7 @@ class Factory {
    * @return {Factory}
    */
 
-  onCreate(onCreateHandler) {
+  onCreate (onCreateHandler) {
     this.createHandler = onCreateHandler
     return this
   }
@@ -232,7 +240,7 @@ class Factory {
    * @param {function(object, object=)} callback
    * @return {Factory}
    */
-  afterCreate(callback) {
+  afterCreate (callback) {
     this.afterCreateHooks.push(callback)
     return this
   }
@@ -246,7 +254,7 @@ class Factory {
    * @param {object=} options
    * @return {object}
    */
-  attributes(attributes, options) {
+  attributes (attributes, options) {
     attributes = Factory.util.extend({}, attributes)
     options = this.options(options)
     for (var attr in this._attrs) {
@@ -266,7 +274,7 @@ class Factory {
    * @param {Array.<string>} stack
    * @return {*}
    */
-  _attrValue(attr, attributes, options, stack) {
+  _attrValue (attr, attributes, options, stack) {
     if (!this._alwaysCallBuilder(attr) && Factory.util.hasOwnProp(attributes, attr)) {
       return attributes[attr]
     }
@@ -294,7 +302,7 @@ class Factory {
    * @param {string} attr
    * @return {boolean}
    */
-  _alwaysCallBuilder(attr) {
+  _alwaysCallBuilder (attr) {
     var attrMeta = this._attrs[attr]
     return attrMeta.dependencies.indexOf(attr) >= 0
   }
@@ -306,7 +314,7 @@ class Factory {
    * @param {?object} options
    * @return {object}
    */
-  options(options) {
+  options (options) {
     options = Factory.util.extend({}, options || {})
     for (var opt in this.opts) {
       options[opt] = this._optionValue(opt, options)
@@ -323,7 +331,7 @@ class Factory {
    * @param {object} options
    * @return {*}
    */
-  _optionValue(opt, options) {
+  _optionValue (opt, options) {
     if (Factory.util.hasOwnProp(options, opt)) {
       return options[opt]
     }
@@ -347,7 +355,7 @@ class Factory {
    * @param {function(string): *} getDep
    * @return {*}
    */
-  _buildWithDependencies(meta, getDep) {
+  _buildWithDependencies (meta, getDep) {
     var deps = meta.dependencies
     var self = this
     var args = deps.map(function () {
@@ -364,7 +372,7 @@ class Factory {
    * @param {object=} options
    * @return {*}
    */
-  build(attributes, options) {
+  build (attributes, options) {
     attributes = Factory.util.extend({}, attributes)
 
     return Factory.util.nextHook(0, this.beforeBuildHooks, attributes, options, (attributes) => {
@@ -377,7 +385,7 @@ class Factory {
     })
   }
 
-  buildList(size, attributes, options) {
+  buildList (size, attributes, options) {
     var containsPromise = false
 
     var objs = []
@@ -401,7 +409,7 @@ class Factory {
    * @param {object=} options
    * @return {*}
    */
-  create(attributes, options) {
+  create (attributes, options) {
     const maybePromise = this.build(attributes, options)
 
     return Factory.util.after(maybePromise, (object) => {
@@ -418,7 +426,7 @@ class Factory {
     })
   }
 
-  createList(size, attributes, options) {
+  createList (size, attributes, options) {
     var containsPromise = false
 
     var objs = []
@@ -441,7 +449,7 @@ class Factory {
    * @param {string|Factory} name The factory to extend.
    * @return {Factory}
    */
-  extend(name) {
+  extend (name) {
     var factory = typeof name === 'string' ? Factory.factories[name] : name
     // Copy the parent's constructor
     if (this.construct === undefined) {
@@ -513,7 +521,7 @@ Factory.util = (function () {
       return Factory.util.isObject(value) && Factory.util.isFunction(value.then)
     },
 
-    after: function after(maybePromise, next) {
+    after: function after (maybePromise, next) {
       return Factory.util.isPromise(maybePromise) ? maybePromise.then(next) : next(maybePromise)
     },
 
