@@ -3,14 +3,11 @@ const { expect } = require('chai')
 const sinon = require('sinon')
 
 describe('Factory.prototype.after', function () {
-  let spy
+  let spy, factory
   beforeEach(function () {
     spy = sinon.spy()
-
     factory = new Factory()
-
     sinon.spy(factory, 'afterBuild')
-
     factory.after(spy)
   })
 

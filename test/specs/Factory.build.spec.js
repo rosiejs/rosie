@@ -6,8 +6,14 @@ describe('Factory.build', function () {
   let factory
 
   beforeEach(function () {
-    factory = Factory.define('factory')
-    sinon.stub(factory, 'build').callsFake(() => 'fake result')
+    factory = new Factory()
+    sinon.stub(Factory, 'get').callsFake(() => factory)
+    sinon.stub(factory, 'build').callsFake(sinon.fake.returns('fake result'))
+    result = Factory.build('factory', 'attrs', 'options')
+  })
+
+  it('gets the correct factory fom the registrar', function () {
+    expect(Factory.get).to.have.been.calledWith('factory')
   })
 
   it('calls factory.build with the provided args', function () {
@@ -16,6 +22,6 @@ describe('Factory.build', function () {
   })
 
   it('returns the built factory', function () {
-    expect(Factory.build('factory')).to.equal('fake result')
+    expect(result).to.equal('fake result')
   })
 })

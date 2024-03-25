@@ -1,7 +1,6 @@
 /**
  * Creates a new factory with attributes, options, etc. to be used to build
- * objects. Generally you should use `Factory.define()` instead of this
- * constructor.
+ * objects.
  *
  * @param {Function=} constructor
  * @class
@@ -18,6 +17,8 @@ class Factory {
     this.beforeCreateHooks = []
     this.createHandler = null
     this.afterCreateHooks = []
+
+    Factory._allFactories.push(this);
   }
 
   /**
@@ -60,14 +61,14 @@ class Factory {
    * @return {Factory}
    */
   attr (attr, dependencies, value) {
-    var builder
+    let builder
     if (arguments.length === 2) {
       value = dependencies
       dependencies = null
     }
 
     builder = Factory.util.isFunction(value) ? value : () => value
-    this._attrs[attr] = { dependencies: dependencies || [], builder: builder }
+    this._attrs[attr] = { dependencies: dependencies || [], builder }
     return this
   }
 
@@ -87,8 +88,8 @@ class Factory {
    * @return {Factory}
    */
   attrs (attributes) {
-    for (var attr in attributes) {
-      if (Factory.util.hasOwnProp(attributes, attr)) {
+    for (let attr in attributes) {
+      if (Object.prototype.hasOwnProperty.call(attributes, attr)) {
         this.attr(attr, attributes[attr])
       }
     }
@@ -124,7 +125,7 @@ class Factory {
    * @return {Factory}
    */
   option (opt, dependencies, value) {
-    var builder
+    let builder
     if (arguments.length === 2) {
       value = dependencies
       dependencies = null
@@ -132,7 +133,7 @@ class Factory {
     if (arguments.length > 1) {
       builder = Factory.util.isFunction(value) ? value : () => value
     }
-    this.opts[opt] = { dependencies: dependencies || [], builder: builder }
+    this.opts[opt] = { dependencies: dependencies || [], builder }
     return this
   }
 
@@ -154,23 +155,16 @@ class Factory {
    * @return {Factory}
    */
   sequence (attr, dependencies, builder) {
-    var factory = this
-
     if (arguments.length === 2) {
-      builder = /** @type function(number): * */ dependencies
+      builder = dependencies
       dependencies = null
     }
-    builder =
-      builder ||
-      function (i) {
-        return i
-      }
-    return this.attr(attr, dependencies, function () {
-      var args = [].slice.call(arguments)
 
-      factory.sequences[attr] = factory.sequences[attr] || 0
-      args.unshift(++factory.sequences[attr])
-      return builder.apply(null, args)
+    builder = builder || ((i) => i)
+    return this.attr(attr, dependencies, (...args) => {
+      this.sequences[attr] = this.sequences[attr] || 0
+      args.unshift(++this.sequences[attr])
+      return builder(...args)
     })
   }
 
@@ -203,8 +197,8 @@ class Factory {
   /**
    * Backwards compatibility alias for afterBuild
    */
-  after (...args) {
-    this.afterBuild(...args)
+  after (hook) {
+    this.afterBuild(hook)
     return this
   }
 
@@ -227,7 +221,6 @@ class Factory {
    * @param {function(object, object=)} callback
    * @return {Factory}
    */
-
   onCreate (onCreateHandler) {
     this.createHandler = onCreateHandler
     return this
@@ -255,9 +248,9 @@ class Factory {
    * @return {object}
    */
   attributes (attributes, options) {
-    attributes = Factory.util.extend({}, attributes)
+    attributes = { ...attributes }
     options = this.options(options)
-    for (var attr in this._attrs) {
+    for (let attr in this._attrs) {
       this._attrValue(attr, attributes, options, [attr])
     }
     return attributes
@@ -275,12 +268,12 @@ class Factory {
    * @return {*}
    */
   _attrValue (attr, attributes, options, stack) {
-    if (!this._alwaysCallBuilder(attr) && Factory.util.hasOwnProp(attributes, attr)) {
+    if (!this._alwaysCallBuilder(attr) && Object.prototype.hasOwnProperty.call(attributes, attr)) {
       return attributes[attr]
     }
 
-    var value = this._buildWithDependencies(this._attrs[attr], function (dep) {
-      if (Factory.util.hasOwnProp(options, dep)) {
+    const value = this._buildWithDependencies(this._attrs[attr], (dep) => {
+      if (Object.prototype.hasOwnProperty.call(options, dep)) {
         return options[dep]
       } else if (dep === attr) {
         return attributes[dep]
@@ -303,7 +296,7 @@ class Factory {
    * @return {boolean}
    */
   _alwaysCallBuilder (attr) {
-    var attrMeta = this._attrs[attr]
+    const attrMeta = this._attrs[attr]
     return attrMeta.dependencies.indexOf(attr) >= 0
   }
 
@@ -315,8 +308,8 @@ class Factory {
    * @return {object}
    */
   options (options) {
-    options = Factory.util.extend({}, options || {})
-    for (var opt in this.opts) {
+    options = { ...options }
+    for (let opt in this.opts) {
       options[opt] = this._optionValue(opt, options)
     }
     return options
@@ -332,18 +325,16 @@ class Factory {
    * @return {*}
    */
   _optionValue (opt, options) {
-    if (Factory.util.hasOwnProp(options, opt)) {
+    if (Object.prototype.hasOwnProperty.call(options, opt)) {
       return options[opt]
     }
 
-    var optMeta = this.opts[opt]
+    const optMeta = this.opts[opt]
     if (!optMeta.builder) {
       throw new Error('option `' + opt + '` has no default value and none was provided')
     }
 
-    return this._buildWithDependencies(optMeta, function (dep) {
-      return this._optionValue(dep, options)
-    })
+    return this._buildWithDependencies(optMeta, (dep) => this._optionValue(dep, options))
   }
 
   /**
@@ -356,11 +347,8 @@ class Factory {
    * @return {*}
    */
   _buildWithDependencies (meta, getDep) {
-    var deps = meta.dependencies
-    var self = this
-    var args = deps.map(function () {
-      return getDep.apply(self, arguments)
-    })
+    const deps = meta.dependencies
+    const args = deps.map((...args) => getDep.apply(this, args))
     return meta.builder.apply(this, args)
   }
 
@@ -373,7 +361,11 @@ class Factory {
    * @return {*}
    */
   build (attributes, options) {
-    attributes = Factory.util.extend({}, attributes)
+    attributes = { ...attributes }
+    // Precalculate options.
+    // Because options cannot depend on themselves or on attributes, subsequent calls to
+    // `this.options` will be idempotent and we can avoid re-running builders
+    options = this.options(options)
 
     return Factory.util.nextHook(0, this.beforeBuildHooks, attributes, options, (attributes) => {
       let result = this.attributes(attributes, options)
@@ -386,11 +378,11 @@ class Factory {
   }
 
   buildList (size, attributes, options) {
-    var containsPromise = false
+    let containsPromise = false
 
-    var objs = []
-    for (var i = 0; i < size; i++) {
-      var obj = this.build(attributes, options)
+    const objs = []
+    for (let i = 0; i < size; i++) {
+      const obj = this.build(attributes, options)
 
       if (Factory.util.isPromise(obj)) containsPromise = true
 
@@ -427,11 +419,11 @@ class Factory {
   }
 
   createList (size, attributes, options) {
-    var containsPromise = false
+    let containsPromise = false
 
-    var objs = []
-    for (var i = 0; i < size; i++) {
-      var obj = this.create(attributes, options)
+    const objs = []
+    for (let i = 0; i < size; i++) {
+      const obj = this.create(attributes, options)
 
       if (Factory.util.isPromise(obj)) containsPromise = true
 
@@ -450,24 +442,29 @@ class Factory {
    * @return {Factory}
    */
   extend (name) {
-    var factory = typeof name === 'string' ? Factory.factories[name] : name
-    // Copy the parent's constructor
-    if (this.construct === undefined) {
-      this.construct = factory.construct
-    }
-    Factory.util.extend(this._attrs, factory._attrs)
-    Factory.util.extend(this.opts, factory.opts)
+    const factory = typeof name === 'string' ? Factory.get(name) : name
+    this.construct = this.construct || factory.construct // Copy the parent's constructor
+
+    Object.assign(this._attrs, factory._attrs)
+    Object.assign(this.opts, factory.opts)
 
     // Copy the parent's hooks
     this.beforeBuildHooks = factory.beforeBuildHooks.slice()
     this.afterBuildHooks = factory.afterBuildHooks.slice()
 
     this.beforeCreateHooks = factory.beforeCreateHooks.slice()
-    // needs test for not overritting
-    this.createHandler = this.createHandler || factory.createHandler
+    this.createHandler = this.createHandler || factory.createHandler // needs test for not overritting
     this.afterCreateHooks = factory.afterCreateHooks.slice()
 
     return this
+  }
+
+  /**
+   * Resets any state changed by building objects back to the original values.
+   * Preserves attributes and options as-is.
+   */
+  reset() {
+    this.sequences = {};
   }
 }
 
@@ -475,40 +472,7 @@ class Factory {
  * @private
  */
 Factory.util = (function () {
-  var hasOwnProp = Object.prototype.hasOwnProperty
-
   return {
-    /**
-     * Determines whether `object` has its own property named `prop`.
-     *
-     * @private
-     * @param {object} object
-     * @param {string} prop
-     * @return {boolean}
-     */
-    hasOwnProp: function (object, prop) {
-      return hasOwnProp.call(object, prop)
-    },
-
-    /**
-     * Extends `dest` with all of own properties of `source`.
-     *
-     * @private
-     * @param {object} dest
-     * @param {object=} source
-     * @return {object}
-     */
-    extend: function (dest, source) {
-      if (source) {
-        for (var key in source) {
-          if (hasOwnProp.call(source, key)) {
-            dest[key] = source[key]
-          }
-        }
-      }
-      return dest
-    },
-
     isObject: function isObject(value) {
       return value !== null && typeof value === 'object'
     },
@@ -538,7 +502,23 @@ Factory.util = (function () {
   }
 })()
 
-Factory.factories = {}
+Factory.factories = {};
+Object.defineProperty(Factory, '_allFactories', {
+  value: [],
+  enumerable: false,
+});
+
+/**
+ * Retrieve a factory from the registrar
+ *
+ * @param {!string} name
+ * @return {Factory}
+ */
+Factory.get = function (name) {
+  const factory = this.factories[name]
+  if (!factory) throw new Error(`The "${name}" factory is not defined.`)
+  return factory
+}
 
 /**
  * Defines a factory by name and constructor function. Call #attr and #option
@@ -549,7 +529,7 @@ Factory.factories = {}
  * @return {Factory}
  */
 Factory.define = function (name, constructor) {
-  var factory = new Factory(constructor)
+  const factory = new Factory(constructor)
   this.factories[name] = factory
   return factory
 }
@@ -563,10 +543,7 @@ Factory.define = function (name, constructor) {
  * @return {*}
  */
 Factory.build = function (name, attributes, options) {
-  if (!this.factories[name]) {
-    throw new Error('The "' + name + '" factory is not defined.')
-  }
-  return this.factories[name].build(attributes, options)
+  return this.get(name).build(attributes, options)
 }
 
 /**
@@ -579,11 +556,7 @@ Factory.build = function (name, attributes, options) {
  * @return {Array.<*>}
  */
 Factory.buildList = function (name, size, attributes, options) {
-  var objs = []
-  for (var i = 0; i < size; i++) {
-    objs.push(Factory.build(name, attributes, options))
-  }
-  return objs
+  return this.get(name).buildList(size, attributes, options)
 }
 
 /**
@@ -595,13 +568,7 @@ Factory.buildList = function (name, size, attributes, options) {
  * @return {*}
  */
 Factory.create = function (name, attributes, options) {
-  var factory = this.factories[name]
-
-  if (!factory) {
-    throw new Error('The "' + name + '" factory is not defined.')
-  }
-
-  return factory.create(attributes, options)
+  return this.get(name).create(attributes, options)
 }
 
 /**
@@ -614,12 +581,7 @@ Factory.create = function (name, attributes, options) {
  * @return {Array.<*>}
  */
 Factory.createList = function (name, size, attributes, options) {
-  var objs = []
-  for (var i = 0; i < size; i++) {
-    objs.push(Factory.create(name, attributes, options))
-  }
-  // if any objects are promises, Promise all, otherwise just return
-  return Promise.all(objs)
+  return this.get(name).createList(size, attributes, options)
 }
 
 /**
@@ -631,18 +593,43 @@ Factory.createList = function (name, size, attributes, options) {
  * @return {object}
  */
 Factory.attributes = function (name, attributes, options) {
-  return this.factories[name].attributes(attributes, options)
+  return this.get(name).attributes(attributes, options)
 }
 
+/**
+ * Resets a factory by name. Preserves attributes and options as-is.
+ *
+ * @param {string} name
+ */
+Factory.reset = function (name) {
+  this.get(name).reset();
+};
+
+/**
+ * Resets all factory build state. Preserves attributes and options as-is.
+ */
+Factory.resetAll = function () {
+  Factory._allFactories.forEach((factory) => factory.reset());
+};
+
+/**
+ * Unregister and forget all existing factories.
+ */
+Factory.implode = function () {
+  Factory.factories = {};
+  Factory._allFactories.length = 0;
+};
+
+/* istanbul ignore next */
 if (typeof exports === 'object' && typeof module !== 'undefined') {
   /* eslint-env commonjs */
   exports.Factory = Factory
   /* eslint-env commonjs:false */
 } else if (typeof define === 'function' && define.amd) {
   /* eslint-env amd */
-  define([], function () {
-    return { Factory: Factory }
-  })
+  define([], () => ({
+    Factory
+  }))
   /* eslint-env amd:false */
 } else if (this) {
   this.Factory = Factory

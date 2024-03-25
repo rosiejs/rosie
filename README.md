@@ -493,12 +493,34 @@ Identical to `.build` except it returns an array of built objects. `size` is req
 - **Factory.buildList(`factory_name`, size, `attributes`, `options`)** - when buildList is called against the rosie Factory singleton, the first param is the name of the factory to use to build the object. The `attributes` and `options` behave the same as the call to `.build`.
 - **instance.buildList(size, `attributes`, `options`)** - when buildList is called on a factory instance only the size, `attributes` and `options` objects are necessary (strictly speaking only the size is necessary)
 
+### Testing
+
+You may find `resetAll` useful when working with testing frameworks such as Jest. It resets any build state, such as sequences, to their original values:
+
+```js
+import Factory from 'rosie';
+
+beforeEach(() => {
+  Factory.resetAll();
+});
+```
+
+Or call `reset` on a specific factory:
+
+```js
+import Game from './game';
+
+beforeEach(() => {
+  Game.reset();
+});
+```
+
 ## Contributing
 
 1.  Fork it
 1.  Create your feature branch (`git checkout -b my-new-feature`)
-1.  Install the test dependencies (`yarn install` - requires NodeJS and yarn)
-1.  Make your changes and make sure the tests pass (`yarn test`)
+1.  Install the test dependencies (`npm install` - requires NodeJS)
+1.  Make your changes and make sure the tests pass (`npm test`)
 1.  Commit your changes (`git commit -am 'Added some feature'`)
 1.  Push to the branch (`git push origin my-new-feature`)
 1.  Create new Pull Request

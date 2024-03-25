@@ -1,25 +1,26 @@
 const { Factory } = require('../../')
 const { expect } = require('chai')
-const { faker } = require('@faker-js/faker')
 const sinon = require('sinon')
 
 describe('Factory.createList', function () {
+  let factory, result
+
   beforeEach(function () {
-    sinon.stub(Factory, 'create').callsFake(sinon.fake.resolves())
+    factory = new Factory()
+    sinon.stub(Factory, 'get').callsFake(() => factory)
+    sinon.stub(factory, 'createList').callsFake(sinon.fake.returns('value'))
+    result = Factory.createList('factory', 3, 'attrs', 'options')
   })
 
-  it('returns a promise', function () {
-    expect(Factory.createList('factory', 2, 'attrs', 'options')).to.be.a('promise')
+  it('gets the correct factory fom the registrar', function () {
+    expect(Factory.get).to.have.been.calledWith('factory')
   })
 
-  it('calls Factory.create n times with the provided args', function () {
-    Factory.createList('factory', 2, 'attrs', 'options')
-    expect(Factory.create).to.have.been.calledTwice
-    expect(Factory.create).to.have.been.calledWith('factory', 'attrs', 'options')
-    expect(Factory.create).to.have.been.calledWith('factory', 'attrs', 'options')
+  it('calls factory.createList with the provided args', function () {
+    expect(factory.createList).to.have.been.calledWith(3, 'attrs', 'options')
   })
 
-  it('returns an array of length n', async function () {
-    await expect(Factory.createList('factory', 2, 'attrs', 'options')).to.eventually.have.lengthOf(2)
+  it('returns the result of factory.createList', function () {
+    expect(result).to.eql('value')
   })
 })

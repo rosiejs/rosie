@@ -83,7 +83,7 @@ describe('Factory.prototype.build', function () {
 
     it('calls attributes with the correct arguments', function () {
       factory.build()
-      expect(factory.attributes).to.have.been.calledWith({}, undefined)
+      expect(factory.attributes).to.have.been.calledWith({}, {})
     })
 
     it('calls attributes with the correct arguments', function () {

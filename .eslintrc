@@ -13,23 +13,7 @@
     "prettier"
   ],
   "parserOptions": {
-    "ecmaVersion": 12,
-    "sourceType": "module"
-  },
-  "rules": {
-    "prettier/prettier": ["error", {
-      "semi": false
-    }],
-    "no-unused-vars": "warn",
-    "no-console": "off",
-    "mocha/no-exclusive-tests": "error",
-    "mocha/no-pending-tests": "warn",
-    "mocha/no-skipped-tests": "warn",
-    "semi": ["error", "never"],
-    "comma-dangle": ["error", "never"],
-    "function-call-argument-newline": ["error", "consistent"],
-    "function-paren-newline": ["error", "consistent"],
-    "indent": ["error", 2, { "SwitchCase": 1 }]
+    "ecmaVersion": 2018
   },
   "overrides": [
     {

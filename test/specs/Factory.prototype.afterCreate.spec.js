@@ -1,6 +1,5 @@
 const { Factory } = require('../../')
 const { expect } = require('chai')
-const { faker } = require('@faker-js/faker')
 const sinon = require('sinon')
 
 describe('Factory.prototype.afterCreate', function () {

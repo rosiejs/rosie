@@ -8,7 +8,7 @@ const sinon = require('sinon')
 
 exports.mochaHooks = {
   afterEach () {
-    Factory.factories = {};
+    Factory.implode();
 
     sinon.restore()
   }

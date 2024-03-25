@@ -1,23 +1,26 @@
 const { Factory } = require('../../')
 const { expect } = require('chai')
-const { faker } = require('@faker-js/faker')
 const sinon = require('sinon')
 
 describe('Factory.create', function () {
-  let factory
+  let factory, result
+
   beforeEach(function () {
-    factory = Factory.define('factory')
-    sinon.spy(factory, 'create')
+    factory = new Factory()
+    sinon.stub(Factory, 'get').callsFake(() => factory)
+    sinon.stub(factory, 'create').callsFake(sinon.fake.returns('value'))
+    result = Factory.create('factory', 'attrs', 'options')
   })
 
-  it('throws an error when the factory is not registered', function () {
-    expect(function () {
-      Factory.build('other')
-    }).to.throw(Error, 'The "other" factory is not defined.')
+  it('gets the correct factory fom the registrar', function () {
+    expect(Factory.get).to.have.been.calledWith('factory')
   })
 
-  it('calls build on the registered factory with the provided arguments', function () {
-    Factory.create('factory', 'attrs', 'options')
+  it('calls factory.create with the provided args', function () {
     expect(factory.create).to.have.been.calledWith('attrs', 'options')
+  })
+
+  it('returns the result of factory.create', function () {
+    expect(result).to.eql('value')
   })
 })
